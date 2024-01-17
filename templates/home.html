@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GutenReader</title>
+</head>
+<body>
+<header>
+    <h3> GutenReader </h3>
+</header>
+<div>
+    <h4>
+        Books
+    </h4>
+    <ol>
+        {% for book in books %}
+        <li> book.title </li>
+        {% endfor %}
+    </ol>
+</div>
+
+</body>
+</html>
