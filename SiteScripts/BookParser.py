@@ -3,7 +3,7 @@ from GutenReaderApp import models as my_models
 from django.db import models
 
 
-def ParseFile(txt_file):
+def parse_file(txt_file):
     if type(txt_file) != models.FileField:
         return False
 
@@ -23,14 +23,14 @@ def ParseFile(txt_file):
     # print(Meta)
 
     Book_Lines = Book_Str.splitlines()
-    Contents_Start = getContentsStart(Book_Lines)
-    Chapter_Names = getChapterNames(Book_Lines=Book_Lines, cont_start=Contents_Start)
+    Contents_Start = get_contents_start(Book_Lines)
+    Chapter_Names = get_chapter_names(Book_Lines=Book_Lines, cont_start=Contents_Start)
     # for x in Chapter_Names:
     #     print(x)
     Reg_Chapter_Names = regify(Chapter_Names)
     # for x in Reg_Chapter_Names:
     #     print(x)
-    SpansList = getChapterSpans(Reg_Chapter_Names, Book_Str)
+    SpansList = get_chapter_spans(Reg_Chapter_Names, Book_Str)
     len_spans = len(SpansList[0])
     for spans in SpansList[0:]:  # same number of matches expected for each chapter
         if (len(spans) != len_spans):
@@ -60,7 +60,7 @@ def ParseFile(txt_file):
     # print(Book_Str[Split_Positions[1]:Split_Positions[2]])
 
 
-def getChapterSpans(Reg_Chapter_Names, Book_Str):
+def get_chapter_spans(Reg_Chapter_Names, Book_Str):
     SpansList = []
     for chap in Reg_Chapter_Names:
         # print(chap)
@@ -97,7 +97,7 @@ def regify(Chapter_Names):
     return reg_chapter_names
 
 
-def getContentsStart(Book_Lines):
+def get_contents_start(Book_Lines):
     Search_String = "Contents"
     cont_start = -1
     for i in range(len(Book_Lines)):  # find where table of contents starts
@@ -111,7 +111,7 @@ def getContentsStart(Book_Lines):
     return cont_start
 
 
-def getChapterNames(cont_start, Book_Lines):
+def get_chapter_names(cont_start, Book_Lines):
     Chapter_Names = []
     for i in range(cont_start, len(Book_Lines)):
         cur_line = Book_Lines[i]

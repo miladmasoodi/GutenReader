@@ -27,10 +27,10 @@ class TextUpload(models.Model):
     def __str__(self):
         return self.txt_file.name
 @receiver(post_save, sender=TextUpload)  # uses signals
-def create_user_profile(sender, instance, created, **kwargs):
+def parse_book(sender, instance, created, **kwargs):
     if created:
         cur_txt_file = instance.txt_file
-        result = BookParser.ParseFile(cur_txt_file)
+        result = BookParser.parse_file(cur_txt_file)
         cur_txt_file.delete()
 
 
