@@ -14,7 +14,7 @@
     </h4>
     <ol>
         {% for book in books %}
-        <li> book.title </li>
+        <li><a href="/book/{{ book.pk }}">{{ book.title }} </a> </li>
         {% endfor %}
     </ol>
 </div>
