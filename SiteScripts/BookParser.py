@@ -4,10 +4,11 @@ from django.db import models
 
 
 def parse_file(txt_file):
-    if type(txt_file) != models.FileField:
-        return False
+    print(type(txt_file))
 
     Book_Str = txt_file.read()
+    print(type(Book_Str))
+
     # file = open("Alice.txt", "r")
     # Book_Str = file.read()
     # file.close()
@@ -15,6 +16,7 @@ def parse_file(txt_file):
     # only show Translator if applicable, Use "Unknown" for no author
     Meta = ["Title: ", "Author: ", "Translator: ", "Language: "]
     for i in range(len(Meta)):
+        print(Book_Str.find(Meta[i]))
         i_position = Book_Str.find(Meta[i])
         if i_position == -1:
             Meta[i] = ""

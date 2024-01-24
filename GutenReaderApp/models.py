@@ -22,15 +22,16 @@ class Book(models.Model):
         return self.title
 
 class TextUpload(models.Model):
-    txt_file = models.FileField(upload_to='/txt_files/')
+    txt_file = models.FileField(upload_to='txt_files/')
 
-    def __str__(self):
-        return self.txt_file.name
+
 @receiver(post_save, sender=TextUpload)  # uses signals
 def parse_book(sender, instance, created, **kwargs):
     if created:
         cur_txt_file = instance.txt_file
-        result = BookParser.parse_file(cur_txt_file)
-        cur_txt_file.delete()
+        print(cur_txt_file)
+        result = BookParser.parse_file(cur_txt_file.open(mode='r'))
+        print(result)
+        instance.delete()
 
 
