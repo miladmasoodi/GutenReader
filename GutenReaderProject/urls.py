@@ -18,10 +18,11 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from GutenReaderApp.views import Home, Index
+from GutenReaderApp.views import Home, Index, Chapter
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', Home.as_view()),
     path('book/<int:book_id>/', Index.as_view()),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # needs testing
+    path('book/<int:book_id>/<int:chapter_id>', Chapter.as_view()),
+    ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # needs testing

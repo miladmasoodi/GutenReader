@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ Book_Title }} Ch {{ chapter_id }}</title>
+</head>
+<body>
+<header>
+    <h3> {{ Book_Title }}: {{ Chap_Title }} </h3>
+</header>
+<div>
+    <a href="/book/{{ book_id }}/{{ chapter_id_prev }}">Prev</a>
+    <a href="/book/{{ book_id }}/{{ chapter_id_next }}">Next</a>
+    <pre>
+        {{ Content }}
+    </pre>
+</div>
+
+</body>
+</html>

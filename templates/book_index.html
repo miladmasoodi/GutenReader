@@ -21,7 +21,7 @@
         
         {% for chap in Chap_Titles %}
         <tr>
-            <td> {{ chap }} </td>
+            <td><a href="/book/{{ book_id }}/{{ chap.1 }}"> {{ chap.0 }} </a></td>
         </tr>
         {% endfor %}
     </table>
