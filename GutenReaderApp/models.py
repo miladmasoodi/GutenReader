@@ -30,7 +30,8 @@ def parse_book(sender, instance, created, **kwargs):
     if created:
         cur_txt_file = instance.txt_file
         print(cur_txt_file)
-        result = BookParser.parse_file(cur_txt_file.open(mode='r'))
+        f = open(cur_txt_file.path, "r", encoding='utf-8')
+        result = BookParser.parse_file(f)
         print(result)
         instance.delete()
 

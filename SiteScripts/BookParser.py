@@ -4,10 +4,8 @@ from django.db import models
 
 
 def parse_file(txt_file):
-    print(type(txt_file))
 
     Book_Str = txt_file.read()
-    print(type(Book_Str))
 
     # file = open("Alice.txt", "r")
     # Book_Str = file.read()
@@ -50,10 +48,10 @@ def parse_file(txt_file):
     title = Meta[0]
     author = "Unknown"
     if Meta[1] != "":
-        Author = Meta[1]
+        author = Meta[1]
     language = Meta[3]
 
-    new_book = my_models.Book(title, author, language,
+    new_book = my_models.Book(title=title, author=author, language=language,
                               full_text=Book_Str, chapter_titles=Chapter_Names, chapter_divisions=Split_Positions)
     new_book.save()
     return True
