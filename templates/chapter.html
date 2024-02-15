@@ -9,8 +9,8 @@
     <h3> {{ Book_Title }}: {{ Chap_Title }} </h3>
 </header>
 <div>
-    <a href="/book/{{ book_id }}/{{ chapter_id_prev }}">Prev</a>
-    <a href="/book/{{ book_id }}/{{ chapter_id_next }}">Next</a>
+    <a {% if has_prev_chapter %}  href="/book/{{ book_id }}/{{ chapter_id_prev }}" {% endif %}>Prev</a>
+    <a {% if has_next_chapter %}  href="/book/{{ book_id }}/{{ chapter_id_next }}" {% endif %}>Next</a>
     <pre>
         {{ Content }}
     </pre>
