@@ -1,20 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ Title }}</title>
-</head>
-<body>
-<header>
-    <h3> GutenReader </h3>
+{% extends "base.html" %}
+{%  block Title %} {{ Title }} {% endblock %}
+{%  block Content %}
+<header class = "container p-10 text-center">
+    <h3> <a href="/">  GutenReader</a> </h3>
 </header>
-<div>
+<div class = "container p-20  border-start border-end border-2 shadow">
     <h4>
         {{ Title }} Index
     </h4>
     <p>By {{ Author }}, in {{ Language }}</p>
 
-    <table>
+    <table class="table table-hover w-50 p-5 ">
       <tr>
         <th>Chapters</th>
       </tr>
@@ -27,6 +23,4 @@
     </table>
         
 </div>
-
-</body>
-</html>
+{% endblock %}
