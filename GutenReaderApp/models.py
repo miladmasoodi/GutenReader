@@ -1,7 +1,9 @@
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from SiteScripts import BookParser
+from SiteScripts import TxtBookParser
+from SiteScripts import HTMLBookParser
+from mimetypes import guess_type
 """File field, Text field(contents of .txt), 
 Meta - Title, Author, Language: Char fields(3) 
 Chapters - titles, start and end(by char not lines) JSON field(2)
@@ -22,15 +24,21 @@ class Book(models.Model):
         return self.title
 
 class TextUpload(models.Model):
-    txt_file = models.FileField(upload_to='txt_files/')
+    book_file = models.FileField(upload_to='book_files/')
 
 
 @receiver(post_save, sender=TextUpload)  # uses signals
 def parse_book(sender, instance, created, **kwargs):
     if created:
-        cur_txt_file = instance.txt_file
-        print(cur_txt_file)
-        result = BookParser.parse_file(cur_txt_file.open(mode='r'))
+        cur_book_file = instance.book_file
+        print(cur_book_file)
+        f = open(cur_book_file.path, "r", encoding='utf-8')
+        context_type = guess_type(cur_book_file.path)[0]
+        if context_type != "text/html":
+            raise Exception("HTML Uploads Only: " + str(context_type))
+
+        result = HTMLBookParser.parse_html_file(f)
+
         print(result)
         instance.delete()
 

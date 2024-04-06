@@ -4,10 +4,8 @@ from django.db import models
 
 
 def parse_file(txt_file):
-    print(type(txt_file))
 
     Book_Str = txt_file.read()
-    print(type(Book_Str))
 
     # file = open("Alice.txt", "r")
     # Book_Str = file.read()
@@ -36,7 +34,8 @@ def parse_file(txt_file):
     len_spans = len(SpansList[0])
     for spans in SpansList[0:]:  # same number of matches expected for each chapter
         if (len(spans) != len_spans):
-            raise Exception("Inconsistent Number of Title Matches")
+            unfound_string = Book_Str[spans[0][0]:spans[0][1]]
+            raise Exception(f"Inconsistent Number of Title Matches {unfound_string}")
     if (len_spans <= 1):
         raise Exception("Less than two matches")
     end_match = regex.search(r"\*\*\* END OF THE PROJECT GUTENBERG", Book_Str)
@@ -50,10 +49,10 @@ def parse_file(txt_file):
     title = Meta[0]
     author = "Unknown"
     if Meta[1] != "":
-        Author = Meta[1]
+        author = Meta[1]
     language = Meta[3]
 
-    new_book = my_models.Book(title, author, language,
+    new_book = my_models.Book(title=title, author=author, language=language,
                               full_text=Book_Str, chapter_titles=Chapter_Names, chapter_divisions=Split_Positions)
     new_book.save()
     return True
@@ -83,18 +82,19 @@ def regify(Chapter_Names):
         reg_name = ""
         space_cnt = 0
         for char in name:
-            if (char == "."):  # '.'s are used inconsistently so they are optional
+            if(char == "."): # '.'s are used inconsistently so they are optional
                 reg_name += "\.?"
-            elif (char == " "):  # 2 or more spaces -> 1+ whitespace || end it there
-                space_cnt += 1
+                reg_name += "\s+"
+                break
+            elif(char == " "): # 1 or more spaces -> 1+ whitespace || end it there
+                space_cnt+=1
                 if space_cnt == 1:
-                    reg_name += " "
-                if space_cnt == 2:
-                    reg_name = reg_name[:-1]
                     reg_name += "\s+"
             else:
                 space_cnt = 0
                 reg_name += char
+        if reg_name.endswith("\s+") is False:
+            reg_name += "\s+"
         reg_chapter_names.append(reg_name)
     return reg_chapter_names
 
@@ -117,9 +117,11 @@ def get_chapter_names(cont_start, Book_Lines):
     Chapter_Names = []
     for i in range(cont_start, len(Book_Lines)):
         cur_line = Book_Lines[i]
-        if cur_line.isspace() is False and cur_line != "":
-            # Checks if the title of the first chapter has been reached improve
-            if len(Chapter_Names) > 0 and cur_line.startswith(Chapter_Names[0][:7]):
+        if cur_line.isspace() is False :
+            # Checks if the title of the first chapter has been reached @todo improve
+            # if len(Chapter_Names) > 0 and cur_line.startswith(Chapter_Names[0][:7]):
+            if len(Chapter_Names) > 0 and cur_line == "":
                 break
-            Chapter_Names.append(cur_line.lstrip())
+            if cur_line !="":
+                Chapter_Names.append(cur_line.lstrip())
     return Chapter_Names
