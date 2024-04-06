@@ -30,7 +30,7 @@ class Chapter(View):
             raise Http404(f'No such chapter: {chapter_id}')
         chapter_start = current_book.chapter_divisions[chapter_id-1]
         chapter_end = current_book.chapter_divisions[chapter_id]
-        content = current_book.full_text[chapter_start:chapter_end]
+        content = '\n'.join(current_book.full_text.splitlines()[chapter_start:chapter_end])
         has_next_chapter = chapter_id < max_chapters
         has_prev_chapter = chapter_id > 1
 
