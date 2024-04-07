@@ -39,8 +39,9 @@ def parse_html_file(html_file):
         meta_values[index] = meta_portion[start_position:end_position]
 
     print(meta_values)
+    end_of_toc = find_line_of_value(lines, "<!--end chapter-->")
 
-    toc_lines = find_all_lines_of_value(lines[:500], 'href="#')
+    toc_lines = find_all_lines_of_value(lines[:end_of_toc], 'href="#')
     chap_ids = find_id_values(lines, toc_lines)
     chap_starts = find_ch_start_lines(lines, chap_ids)
     chap_starts.append(end_line)
@@ -65,9 +66,12 @@ def parse_html_file(html_file):
     #     chap_portions.append(lines[chap_starts[prev_index]:chap_starts[i]])
     #     prev_index = i
 
-    new_book = my_models.Book(title=meta_values[0], author=meta_values[1], language=meta_values[2],
-                              full_text='\n'.join(lines), chapter_titles=chap_titles, chapter_divisions=chap_starts)
-    new_book.save()
+    # new_book = my_models.Book(title=meta_values[0], author=meta_values[1], language=meta_values[2],
+    #                           full_text='\n'.join(lines), chapter_titles=chap_titles, chapter_divisions=chap_starts)
+    # new_book.save()
+    book_dict = {"meta_values": meta_values, "full_text":'\n'.join(lines),
+                 "chapter_titles": chap_titles, "chapter_divisions": chap_starts}
+    return book_dict
 
 
 def find_line_of_value(html_lines, value):
