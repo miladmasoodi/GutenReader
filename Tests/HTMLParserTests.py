@@ -16,23 +16,36 @@ class TestHTMLParser(unittest.TestCase):
             "</body>",
             "</html>"
         ]
+        self.chapter_divisions = [1, 5, 333, 555, 559, 777, 888, 2222, 4444, 4450, 5555, 6666]
 
-    def test_find_line_of_value(self):
+    def test_find_line_of_value_found(self):
         # Test to find a value that exists
         index = find_line_of_value(self.html_lines, "<body>")
         self.assertEqual(index, 2)
 
+    def test_find_line_of_value_unfound(self):
         # Test to find a value that does not exist
         index = find_line_of_value(self.html_lines, "<footer>")
         self.assertEqual(index, -1)
 
-    def test_find_all_lines_of_value(self):
+    def test_find_all_lines_of_value_found(self):
         # Test to find multiple lines containing 'paragraph'
         indices = find_all_lines_of_value(self.html_lines, "paragraph")
         self.assertEqual(indices, [4, 5])
 
+    def test_find_all_lines_of_value_unfound(self):
         # Test to find a value that does not exist
         indices = find_all_lines_of_value(self.html_lines, "nonexistent")
+        self.assertEqual(indices, [])
+
+    def test_get_section_indices_found(self):
+        # Test to find sections based on lines and return their indices
+        indices = get_section_indices(self.chapter_divisions)
+        self.assertEqual(indices, [8, 3, 0])
+
+    def test_get_section_indices_unfound(self):
+        # Test to find sections based on lines and return their indices, none expected
+        indices = get_section_indices([111, 333, 555, 777, 888, 2222, 4444])
         self.assertEqual(indices, [])
 
 

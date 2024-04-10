@@ -1,6 +1,13 @@
-from GutenReaderApp import models as my_models
 import unicodedata
 
+
+def get_section_indices(chapter_divisions):
+    section_indices = []
+    for i in range(len(chapter_divisions)-1, 0, -1):
+        line_difference = chapter_divisions[i] - chapter_divisions[i-1]
+        if line_difference < 10:  # 10 is only based on observed line_diffs
+            section_indices.append(i-1)
+    return section_indices
 
 def parse_html_file(html_file):
     START_TEXT = "*** START OF"

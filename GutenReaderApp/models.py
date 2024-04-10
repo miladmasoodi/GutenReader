@@ -14,11 +14,16 @@ class Book(models.Model):
     title = models.CharField(max_length=100)
     author = models.CharField(max_length=100)
     language = models.CharField(max_length=50)
+    view_count = models.IntegerField(default=0)
+    do_recommend_count = models.IntegerField(default=0)
+    do_not_recommend_count = models.IntegerField(default=0)
+
     # Content Info
     full_text = models.TextField()
     # Chapter Info
     chapter_titles = models.JSONField(default=list)
     chapter_divisions = models.JSONField(default=list)
+    section_indices = models.JSONField(default=list)
 
     def __str__(self):
         return self.title
@@ -39,9 +44,11 @@ def parse_book(sender, instance, created, **kwargs):
 
         result = HTMLBookParser.parse_html_file(f)
         print(result)
+        chap_divs = result["chapter_divisions"]
+        section_indices = HTMLBookParser.get_section_indices(result["chapter_divisions"])
         new_book = Book(title=result["meta"][0], author=result["meta"][1], language=result["meta"][2],
                         full_text=result["full_text"], chapter_titles=result["chapter_titles"],
-                        chapter_divisions=result["chapter_divisions"])
+                        chapter_divisions=chap_divs, section_indices=section_indices)
         new_book.save()
 
         instance.delete()
