@@ -43,12 +43,13 @@ def parse_book(sender, instance, created, **kwargs):
             raise Exception("HTML Uploads Only: " + str(context_type))
 
         result = HTMLBookParser.parse_html_file(f)
-        print(result)
+
         chap_divs = result["chapter_divisions"]
         section_indices = HTMLBookParser.get_section_indices(result["chapter_divisions"])
-        new_book = Book(title=result["meta"][0], author=result["meta"][1], language=result["meta"][2],
-                        full_text=result["full_text"], chapter_titles=result["chapter_titles"],
-                        chapter_divisions=chap_divs, section_indices=section_indices)
+        new_book = Book(title=result["meta_values"][0], author=result["meta_values"][1],
+                        language=result["meta_values"][2], full_text=result["full_text"],
+                        chapter_titles=result["chapter_titles"], chapter_divisions=chap_divs,
+                        section_indices=section_indices)
         new_book.save()
 
         instance.delete()

@@ -7,6 +7,7 @@ def get_section_indices(chapter_divisions):
         line_difference = chapter_divisions[i] - chapter_divisions[i-1]
         if line_difference < 10:  # 10 is only based on observed line_diffs
             section_indices.append(i-1)
+    section_indices.reverse()
     return section_indices
 
 def parse_html_file(html_file):
@@ -76,7 +77,7 @@ def parse_html_file(html_file):
     # new_book = my_models.Book(title=meta_values[0], author=meta_values[1], language=meta_values[2],
     #                           full_text='\n'.join(lines), chapter_titles=chap_titles, chapter_divisions=chap_starts)
     # new_book.save()
-    book_dict = {"meta_values": meta_values, "full_text":'\n'.join(lines),
+    book_dict = {"meta_values": meta_values, "full_text": '\n'.join(lines),
                  "chapter_titles": chap_titles, "chapter_divisions": chap_starts}
     return book_dict
 

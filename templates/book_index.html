@@ -1,9 +1,7 @@
 {% extends "base.html" %}
 {%  block Title %} {{ Title }} {% endblock %}
 {%  block Content %}
-<header class = "container p-10 text-center">
-    <h3> <a href="/">  GutenReader</a> </h3>
-</header>
+
 <div class = "container p-20  border-start border-end border-2 shadow">
     <h4>
         {{ Title }} Index
@@ -11,15 +9,20 @@
     <p>By {{ Author }}, in {{ Language }}</p>
 
     <table class="table table-hover w-50 p-5 ">
-      <tr>
-        <th>Chapters</th>
-      </tr>
-        
-        {% for chap in Chap_Titles %}
+      <thead>
         <tr>
-            <td><a href="/book/{{ book_id }}/{{ chap.1 }}"> {{ chap.0 }} </a></td>
+            <th>Chapters</th>
         </tr>
+      </thead>
+      <tbody>  
+        {% for chap in Chap_Titles %}
+          {% if chap.1 == -1 %}
+            <tr><th>{{ chap.0 }}</th></tr>
+          {% else %}
+            <tr><td><a href="/book/{{ book_id }}/{{ chap.1 }}"> {{ chap.0 }} </a></td></tr>
+          {% endif %}  
         {% endfor %}
+      </tbody>
     </table>
         
 </div>

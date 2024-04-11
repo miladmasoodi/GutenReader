@@ -41,7 +41,7 @@ class TestHTMLParser(unittest.TestCase):
     def test_get_section_indices_found(self):
         # Test to find sections based on lines and return their indices
         indices = get_section_indices(self.chapter_divisions)
-        self.assertEqual(indices, [8, 3, 0])
+        self.assertEqual(indices, [0, 3, 8])
 
     def test_get_section_indices_unfound(self):
         # Test to find sections based on lines and return their indices, none expected
