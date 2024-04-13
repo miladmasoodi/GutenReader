@@ -8,7 +8,7 @@ from django.http import Http404
 class Home(View):
     def get(self, request):
         books = list(Book.objects.all())
-        return render(request, "home.html", {"books": books})
+        return render(request, "home.html", {"books": books, "Title": "Home"})
 
 
 class Index(View):
@@ -39,6 +39,7 @@ class Chapter(View):
         content = '\n'.join(current_book.full_text.splitlines()[chapter_start:chapter_end])
         has_next_chapter = chapter_id < max_chapters
         has_prev_chapter = chapter_id > 1
+        title = current_book.title + " Ch: " + current_book.chapter_titles[chapter_id - 1]
 
         context = {'Book_Title': current_book.title,
                    'Chap_Title': current_book.chapter_titles[chapter_id - 1],
@@ -49,5 +50,6 @@ class Chapter(View):
                    'chapter_id_next': chapter_id + 1,
                    'has_next_chapter': has_next_chapter,
                    'has_prev_chapter': has_prev_chapter,
+                   'Title': title,
                    }
         return render(request, "chapter.html", context)

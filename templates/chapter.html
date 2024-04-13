@@ -1,20 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ Book_Title }} Ch {{ chapter_id }}</title>
-</head>
-<body>
-<header>
-    <h3> {{ Book_Title }}: {{ Chap_Title }} </h3>
-</header>
-<div>
-    <a {% if has_prev_chapter %}  href="/book/{{ book_id }}/{{ chapter_id_prev }}" {% endif %}>Prev</a>
-    <a {% if has_next_chapter %}  href="/book/{{ book_id }}/{{ chapter_id_next }}" {% endif %}>Next</a>
-    <div>
-        {{ Content | safe}}
-    </div>
-</div>
+{% extends "base.html" %}
+{%  block Title %} {{ Title }} {% endblock %}
+{%  block Content %}
+<div class = "container p-5 min-vh-100 border-start border-end border-2 shadow">
 
-</body>
-</html>
+    <h2 class="text-muted"> {{ Book_Title }}: {{ Chap_Title }} </h2>
+
+
+    <div class="btn-group  pe-5 float-end" role="group" aria-label="Previous, Next Links">
+        <a  class="btn btn-outline-primary" {% if has_prev_chapter %}  href="/book/{{ book_id }}/{{ chapter_id_prev }}" {% endif %}>Prev</a>
+        <a  class="btn btn-outline-primary" {% if has_next_chapter %}  href="/book/{{ book_id }}/{{ chapter_id_next }}" {% endif %}>Next</a>
+    </div>
+        <div class="mt-3">
+            {{ Content | safe}}
+        </div>
+    <div class="btn-group pe-5 float-end" role="group" aria-label="Previous, Next Links">
+        <a  class="btn btn-outline-primary" {% if has_prev_chapter %}  href="/book/{{ book_id }}/{{ chapter_id_prev }}" {% endif %}>Prev</a>
+        <a  class="btn btn-outline-primary" {% if has_next_chapter %}  href="/book/{{ book_id }}/{{ chapter_id_next }}" {% endif %}>Next</a>
+    </div>
+    </div>
+
+{% endblock %}

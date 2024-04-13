@@ -1,23 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>GutenReader</title>
-</head>
-<body>
-<header>
-    <h3> GutenReader </h3>
-</header>
-<div>
-    <h4>
+{% extends "base.html" %}
+{%  block Title %} {{ Title }} {% endblock %}
+{%  block Content %}
+<div class = "container p-20 min-vh-100 border-start border-end border-2 shadow">
+    <h3>
         Books
-    </h4>
+    </h3>
     <ol>
         {% for book in books %}
         <li><a href="/book/{{ book.pk }}">{{ book.title }} </a> </li>
         {% endfor %}
     </ol>
 </div>
-
-</body>
-</html>
+{% endblock %}
