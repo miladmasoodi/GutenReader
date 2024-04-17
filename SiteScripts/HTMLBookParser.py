@@ -51,8 +51,6 @@ def parse_html_file(html_file):
 
     toc_lines = find_all_lines_of_value(lines[:end_of_toc], 'href="#')
 
-
-
     # to see if it started counting non-toc <a>'s
     toc_lines = revise_toc_lines(toc_lines)
 
@@ -95,9 +93,6 @@ def revise_toc_lines(toc_lines):
             if abs(old_avg_diff - new_diff) > old_avg_diff/2.0:
                 return toc_lines[:i]
     return toc_lines
-
-        # raise Exception("Unexpected line difference: " + str(line_diff) + " avg: " + str(avg_diff))
-
 
 def find_line_of_value(html_lines, value):
     for index, line in enumerate(html_lines):

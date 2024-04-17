@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
 from SiteScripts import TxtBookParser
 from SiteScripts import HTMLBookParser
 from mimetypes import guess_type
@@ -17,6 +18,8 @@ class Book(models.Model):
     view_count = models.IntegerField(default=0)
     do_recommend_count = models.IntegerField(default=0)
     do_not_recommend_count = models.IntegerField(default=0)
+    date_added = models.DateTimeField(default=timezone.now)
+    project_gutenberg_id = models.IntegerField(default=-1)
 
     # Content Info
     full_text = models.TextField()
