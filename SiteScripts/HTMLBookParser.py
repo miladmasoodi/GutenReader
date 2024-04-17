@@ -50,19 +50,17 @@ def parse_html_file(html_file):
     end_of_toc = find_line_of_value(lines, "<!--end chapter-->")
 
     toc_lines = find_all_lines_of_value(lines[:end_of_toc], 'href="#')
+
+
+
+    # to see if it started counting non-toc <a>'s
+    toc_lines = revise_toc_lines(toc_lines)
+
     chap_ids = find_id_values(lines, toc_lines)
     chap_starts = find_ch_start_lines(lines, chap_ids)
     chap_starts.append(end_line)
 
     chap_titles = find_chap_titles(lines, toc_lines)
-
-    # to see if it started counting non-toc <a>'s
-    avg_diff = (toc_lines[-1] - toc_lines[0]) / (0.0 + len(toc_lines))
-    first_diff = toc_lines[1] - toc_lines[0]
-    line_diff = abs(first_diff - avg_diff)
-    if line_diff > avg_diff / 2.0:  # denom might need to be much higher
-        raise Exception("Unexpected line difference: " + str(line_diff))
-
     print(chap_titles)
     print(chap_ids)
     print(chap_starts)
@@ -80,6 +78,25 @@ def parse_html_file(html_file):
     book_dict = {"meta_values": meta_values, "full_text": '\n'.join(lines),
                  "chapter_titles": chap_titles, "chapter_divisions": chap_starts}
     return book_dict
+
+
+def revise_toc_lines(toc_lines):
+    avg_diff = (toc_lines[-1] - toc_lines[0]) / (0.0 + len(toc_lines))
+    first_diff = toc_lines[1] - toc_lines[0]
+    line_diff = abs(first_diff - avg_diff)
+    if line_diff > first_diff / 4.0:  # denom might need to be much higher
+        print("Unexpected line difference: " + str(line_diff) + " avg: " + str(avg_diff))
+        old_sum = first_diff
+        for i in range(2, len(toc_lines)):
+            new_diff = toc_lines[i] - toc_lines[i-1]
+            new_sum = old_sum + new_diff
+            old_avg_diff = old_sum / (i-1)
+            old_sum = new_sum
+            if abs(old_avg_diff - new_diff) > old_avg_diff/2.0:
+                return toc_lines[:i]
+    return toc_lines
+
+        # raise Exception("Unexpected line difference: " + str(line_diff) + " avg: " + str(avg_diff))
 
 
 def find_line_of_value(html_lines, value):
