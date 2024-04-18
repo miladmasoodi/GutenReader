@@ -3,12 +3,13 @@ import unicodedata
 
 def get_section_indices(chapter_divisions):
     section_indices = []
-    for i in range(len(chapter_divisions)-1, 0, -1):
-        line_difference = chapter_divisions[i] - chapter_divisions[i-1]
+    for i in range(len(chapter_divisions) - 1, 0, -1):
+        line_difference = chapter_divisions[i] - chapter_divisions[i - 1]
         if line_difference < 10:  # 10 is only based on observed line_diffs
-            section_indices.append(i-1)
+            section_indices.append(i - 1)
     section_indices.reverse()
     return section_indices
+
 
 def parse_html_file(html_file):
     START_TEXT = "*** START OF"
@@ -56,13 +57,14 @@ def parse_html_file(html_file):
 
     chap_ids = find_id_values(lines, toc_lines)
     chap_starts = find_ch_start_lines(lines, chap_ids)
-    chap_starts.append(end_line)
-
     chap_titles = find_chap_titles(lines, toc_lines)
     print(chap_titles)
     print(chap_ids)
     print(chap_starts)
+    if len(chap_ids) < len(chap_starts):
+        raise Exception("too many chap_starts")
 
+    chap_starts.append(end_line)
     # # split into diff strings before reformating so chap positions aren't lost
     # chap_portions = []
     # prev_index = 0
@@ -86,13 +88,14 @@ def revise_toc_lines(toc_lines):
         print("Unexpected line difference: " + str(line_diff) + " avg: " + str(avg_diff))
         old_sum = first_diff
         for i in range(2, len(toc_lines)):
-            new_diff = toc_lines[i] - toc_lines[i-1]
+            new_diff = toc_lines[i] - toc_lines[i - 1]
             new_sum = old_sum + new_diff
-            old_avg_diff = old_sum / (i-1)
+            old_avg_diff = old_sum / (i - 1)
             old_sum = new_sum
-            if abs(old_avg_diff - new_diff) > old_avg_diff/2.0:
+            if abs(old_avg_diff - new_diff) > old_avg_diff / 2.0:
                 return toc_lines[:i]
     return toc_lines
+
 
 def find_line_of_value(html_lines, value):
     for index, line in enumerate(html_lines):
@@ -113,11 +116,15 @@ def find_ch_start_lines(html_lines, ch_ids):
     chap_starts = []
     # find all ids first to limit comparisons to ch_ids
     id_lines = find_all_lines_of_value(html_lines, 'id="')
+    ch_id_index = 0
     for line_index in id_lines:
         cur_line = html_lines[line_index]
-        for id in ch_ids:
-            if id in cur_line:
-                chap_starts.append(line_index)
+        cur_id = ch_ids[ch_id_index]
+        if ('id="' + cur_id) in cur_line:
+            ch_id_index += 1
+            chap_starts.append(line_index)
+            if ch_id_index == len(ch_ids):
+                break
     return chap_starts
 
 
@@ -144,6 +151,3 @@ def find_chap_titles(lines, result):
                 break
         chapter_titles.append("" + cur_line[start_index:end_index])
     return chapter_titles
-
-
-
