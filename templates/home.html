@@ -2,13 +2,19 @@
 {%  block Title %} {{ Title }} {% endblock %}
 {%  block Content %}
 <div class = "container p-20 min-vh-100 border-start border-end border-2 shadow">
-    <h3>
+    <h2 class="ms-2 p-2">
         Books
-    </h3>
-    <ol>
-        {% for book in books %}
-        <li><a href="/book/{{ book.pk }}">{{ book.title }} </a> </li>
-        {% endfor %}
-    </ol>
+    </h2>
+    <div class="d-flex flex-wrap m-3 ">
+      {% for book in books %}
+        <div class="card m-2 shadow-sm" style="width: 16rem; height: 9rem">
+          <div class="card-body">
+            <a class="text-decoration-none" href="/book/{{ book.pk }}"><h5 class="card-title">{{ book.title }}</h5></a>
+            <h6 class="card-subtitle mb-1 text-muted">{{ book.author }}</h6>
+            <a href="/book/{{ book.pk }}/1" class="btn btn-outline-primary position-absolute bottom-0 end-0 m-2">Part 1</a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
 </div>
 {% endblock %}
