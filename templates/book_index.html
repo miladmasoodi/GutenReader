@@ -1,25 +1,41 @@
 {% extends "base.html" %}
 {%  block Title %} {{ Title }} {% endblock %}
 {%  block Content %}
-<header class = "container p-10 text-center">
-    <h3> <a href="/">  GutenReader</a> </h3>
-</header>
+
 <div class = "container p-20  border-start border-end border-2 shadow">
+    <div class="d-flex flex-wrap">
+        <h2 class="fw-bolder"> {{ Title }}</h2> <h2 class="text-muted ms-3">Index</h2>
+    </div>
+    <br>
+    <h4>By {{ Author }}, in {{ Language }}</h4>
+    <br>
     <h4>
-        {{ Title }} Index
+        Tags:
     </h4>
-    <p>By {{ Author }}, in {{ Language }}</p>
+    <div class="d-flex flex-wrap p-1 m-1">
+      {% for tag in tag_list %}
+        <div class=" card shadow-sm m-2 p-2 border border-info border-2 rounded-3"
+             style="max-width: 22rem; height: 2rem">
+            <h6 class="fw-bold  text-dark position-relative top-50 start-50 translate-middle">{{ tag }}</h6>
+        </div>
+      {% endfor %}
+    </div>
 
     <table class="table table-hover w-50 p-5 ">
-      <tr>
-        <th>Chapters</th>
-      </tr>
-        
-        {% for chap in Chap_Titles %}
+      <thead>
         <tr>
-            <td><a href="/book/{{ book_id }}/{{ chap.1 }}"> {{ chap.0 }} </a></td>
+            <th>Chapters</th>
         </tr>
+      </thead>
+      <tbody>  
+        {% for chap in Chap_Titles %}
+          {% if chap.1 == -1 %}
+            <tr><th>{{ chap.0 }}</th></tr>
+          {% else %}
+            <tr><td><a href="/book/{{ book_id }}/{{ chap.1 }}"> {{ chap.0 }} </a></td></tr>
+          {% endif %}  
         {% endfor %}
+      </tbody>
     </table>
         
 </div>
