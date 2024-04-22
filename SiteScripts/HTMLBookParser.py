@@ -39,14 +39,17 @@ def parse_html_file(html_file):
     TITLE_SAMPLE = "<strong>Title</strong>: "
     AUTHOR_SAMPLE = "<strong>Author</strong>: "
     LANG_SAMPLE = "<strong>Language</strong>: "
-    meta_samples = [TITLE_SAMPLE, AUTHOR_SAMPLE, LANG_SAMPLE]
-    meta_values = ["Title not found", "Unknown Author", "Language not found"]
+    TRANSLATOR_SAMPLE = "<strong>Translator</strong>: "
+
+    meta_samples = [TITLE_SAMPLE, AUTHOR_SAMPLE, LANG_SAMPLE, TRANSLATOR_SAMPLE]
+    meta_values = ["Title not found", "Unknown Author", "Language not found", ""]
     for index, sample in enumerate(meta_samples):
         sample_position = meta_portion.find(sample)
-        offset = len(sample)
-        start_position = sample_position + offset
-        end_position = meta_portion[start_position:].find("<") + start_position
-        meta_values[index] = meta_portion[start_position:end_position]
+        if sample_position != -1:
+            offset = len(sample)
+            start_position = sample_position + offset
+            end_position = meta_portion[start_position:].find("<") + start_position
+            meta_values[index] = meta_portion[start_position:end_position]
     print(meta_values)
 
     SUBJECT_SAMPLE = '<meta name="dc.subject" content="'
@@ -92,12 +95,20 @@ def get_meta_tags(sample, meta_portion):
         sample_position = meta_portion[line].find(sample)
         start_position = sample_position + offset
         end_position = meta_portion[line][start_position:].find('"') + start_position
-        end = " -- "
         tag_string = meta_portion[line][start_position:end_position]
         tag_string = tag_string[:30]
-        tag_cutoff = tag_string.find(end)
-        if tag_cutoff != -1:
+        # cut off rest of subject tag string if the following are found
+        cutoff_strings = [',', '(', '{', '[']
+        tag_cutoff = tag_string.find(" --")
+        for string in cutoff_strings:
+            cur_cutoff = tag_string.find(string, 15)
+            if cur_cutoff != -1 and (tag_cutoff == -1 or cur_cutoff < tag_cutoff):
+                tag_cutoff = cur_cutoff
+        if tag_cutoff == -1:
+            meta_tags.append(tag_string)
+        else:
             meta_tags.append(tag_string[:tag_cutoff])
+
     return meta_tags
 
 
@@ -113,6 +124,7 @@ def revise_toc_lines(toc_lines):
             new_sum = old_sum + new_diff
             old_avg_diff = old_sum / (i - 1)
             old_sum = new_sum
+            # cutoff toc_lines at first big jump in lines relative to previous jumps
             if abs(old_avg_diff - new_diff) > old_avg_diff / 2.0:
                 return toc_lines[:i]
     return toc_lines

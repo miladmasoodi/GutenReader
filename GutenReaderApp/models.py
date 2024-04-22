@@ -18,6 +18,7 @@ class Book(models.Model):
     title = models.CharField(max_length=100)
     author = models.CharField(max_length=100)
     language = models.CharField(max_length=50)
+    translater = models.CharField(max_length=100, default="")
     view_count = models.IntegerField(default=0)
     do_recommend_count = models.IntegerField(default=0)
     do_not_recommend_count = models.IntegerField(default=0)
@@ -61,8 +62,11 @@ def parse_book(sender, instance, created, **kwargs):
 
         chap_divs = result["chapter_divisions"]  # <v move to parse_html_file()
         section_indices = HTMLBookParser.get_section_indices(result["chapter_divisions"])
-        new_book = Book(title=result["meta_values"][0], author=result["meta_values"][1],
-                        language=result["meta_values"][2], full_text=result["full_text"],
+        new_book = Book(title=result["meta_values"][0],
+                        author=result["meta_values"][1],
+                        language=result["meta_values"][2],
+                        translater=result["meta_values"][3],
+                        full_text=result["full_text"],
                         chapter_titles=result["chapter_titles"], chapter_divisions=chap_divs,
                         section_indices=section_indices, project_gutenberg_id=result["pg_id"])
         new_book.save()
