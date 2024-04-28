@@ -2,41 +2,48 @@
 {%  block Title %} {{ Title }} {% endblock %}
 {%  block Content %}
 
-<div class = "container p-20  border-start border-end border-2 shadow">
-    <div class="d-flex flex-wrap">
-        <h2 class="fw-bolder"> {{ Title }}</h2> <h2 class="text-muted ms-3">Index</h2>
+  <div class="container row justify-content-center ">
+    <div class="d-flex flex-wrap justify-content-center">
+        <h1 class="text-black-50 display-5 p-2"> {{ Title }}</h1>
     </div>
     <br>
-    <h4>By {{ Author }}, in {{ Language }}</h4>
+    <div class=" ps-5 ms-5">
+        <h4><span class="fs-5 fw-light">By </span> {{ Author }}</h4>
+        <h4><span class="fs-5 fw-light">In </span> {{ Language }}</h4>
+        {% if HasTranslator %}
+          <h4><span class="fs-5 fw-light">Translated by</span> {{ Translator }} </h4>
+        {% endif %}
+    </div>
     <br>
-    <h4>
-        Tags:
-    </h4>
-    <div class="d-flex flex-wrap p-1 m-1">
+
+    <div class="d-flex flex-wrap p-1 m-1 justify-content-center">
+        <h4 class="mt-2">
+            Tags:
+        </h4>
       {% for tag in tag_list %}
-        <div class=" card shadow-sm m-2 p-2 border border-info border-2 rounded-3"
+        <div class="d-block card shadow-sm m-2 p-2 border border-info rounded-3 border-2"
              style="max-width: 22rem; height: 2rem">
-            <h6 class="fw-bold  text-dark position-relative top-50 start-50 translate-middle">{{ tag }}</h6>
+            <h6 class="m-0 fw-bolder text-truncate text-dark position-relative top-50 start-50 translate-middle ">{{ tag }}</h6>
         </div>
       {% endfor %}
     </div>
-
-    <table class="table table-hover w-50 p-5 ">
-      <thead>
-        <tr>
-            <th>Chapters</th>
-        </tr>
-      </thead>
-      <tbody>  
-        {% for chap in Chap_Titles %}
-          {% if chap.1 == -1 %}
-            <tr><th>{{ chap.0 }}</th></tr>
-          {% else %}
-            <tr><td><a href="/book/{{ book_id }}/{{ chap.1 }}"> {{ chap.0 }} </a></td></tr>
-          {% endif %}  
-        {% endfor %}
-      </tbody>
-    </table>
-        
-</div>
+    <div class="row col-9">
+        <table class="table table-hover p-2 ">
+          <thead>
+            <tr>
+                <th class="fs-3 fw-normal text-muted">Index</th>
+            </tr>
+          </thead>
+          <tbody class=" bg-light">
+            {% for chap in Chap_Titles %}
+              {% if chap.1 == -1 %}
+                <tr class="border-bottom border-dark"><th class="text-dark">{{ chap.0 }}</th></tr>
+              {% else %}
+                <tr class="border-bottom "><td class="p-0" ><a class=" nav-link width-100 height-100 text-primary  " href="/book/{{ book_id }}/{{ chap.1 }}"> {{ chap.0 }} </a></td></tr>
+              {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+  </div>
 {% endblock %}

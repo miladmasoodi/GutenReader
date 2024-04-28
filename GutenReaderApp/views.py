@@ -28,6 +28,7 @@ class Index(View):
                 chap_titles.append((current_book.chapter_titles[i], i + 1))  # not 0 based since user-facing
 
         context = {'Title': current_book.title, 'Author': current_book.author, 'Language': current_book.language,
+                   'Translator': current_book.translater, "HasTranslator": current_book.translater != '',
                    'Chap_Titles': chap_titles, 'book_id': current_book.pk, 'tag_list': tag_list}
         return render(request, "book_index.html", context)
 
