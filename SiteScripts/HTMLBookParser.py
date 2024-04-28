@@ -81,7 +81,31 @@ def parse_html_file(html_file):
     chap_starts.append(end_line)
     print(meta_tags)
 
-    book_dict = {"meta_values": meta_values, "full_text": '\n'.join(lines),
+    # split into diff strings before reformating so chap positions aren't lost
+    # then remove undesired lines and/or elements
+    undesirable_samples = ['href="#contents"']
+    chap_portions = []
+    for i in range(1, len(chap_starts)):
+        chap_portions[i-1] = lines[chap_starts[i-1]:chap_starts[i]]
+    for chapter in chap_portions:
+        for undesirable_sample in undesirable_samples:
+            line = find_line_of_value(chapter, undesirable_sample)
+            if line != -1:
+                chapter[line] = ''
+    
+    # recombine into a single string
+    if len(chap_portions)+1 != len(chap_starts):  # valid values needed to update chap_starts
+        raise Exception("chap_starts & chap_portions do not have valid values, len(chap_starts):"
+                        + str(len(chap_starts)) + ", len(chap_portions)" + str(len(chap_portions)))
+    string_portions = []
+    chap_starts[0] = 0
+    for index in range(len(chap_portions)):
+        s = '\n'.join(chap_portions[index])
+        string_portions.append(s)
+        chap_starts[index+1] = chap_starts[index] + len(s)
+    full_text = '\n'.join(string_portions)
+
+    book_dict = {"meta_values": meta_values, "full_text": full_text,
                  "chapter_titles": chap_titles, "chapter_divisions": chap_starts,
                  "meta_tags": meta_tags, "pg_id": pg_id}
     return book_dict
