@@ -8,7 +8,7 @@ from django.http import Http404
 class Home(View):
     def get(self, request):
         books = list(Book.objects.all())
-        return render(request, "home.html", {"books": books, "Title": "Home"})
+        return render(request, "home.html", {"books": books, "Title": "Home - GutenReader"})
 
 
 class Index(View):

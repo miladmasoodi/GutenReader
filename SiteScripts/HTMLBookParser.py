@@ -85,7 +85,7 @@ def parse_html_file(html_file):
 
     # split into diff strings before reformating so chap positions aren't lost
     # then remove undesired lines and/or elements
-    undesirable_samples = ['href="#contents', '<img']
+    undesirable_samples = ['href="#contents', '<img', 'href="images/']
     chap_portions = []
     for i in range(1, len(chap_starts)):
         chap_portions.append(lines[chap_starts[i-1]:chap_starts[i]])
@@ -130,7 +130,7 @@ def get_meta_tags(sample, meta_portion):
         start_position = sample_position + offset
         end_position = meta_portion[line][start_position:].find('"') + start_position
         tag_string = meta_portion[line][start_position:end_position]
-        tag_string = tag_string[:30]
+        tag_string = tag_string[:40]
         # cut off rest of subject tag string if the following are found
         cutoff_strings = [',', '(', '{', '[']
         tag_cutoff = tag_string.find(" --")
