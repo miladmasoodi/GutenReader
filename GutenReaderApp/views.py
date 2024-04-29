@@ -23,9 +23,9 @@ class Index(View):
         for i in range(len(current_book.chapter_titles)):
             if len(current_book.section_indices) > section_count and current_book.section_indices[section_count] == i:
                 section_count += 1
-                chap_titles.append((current_book.chapter_titles[i], -1))  # not 0 based since user-facing
+                chap_titles.append((current_book.chapter_titles[i], -1))
             else:
-                chap_titles.append((current_book.chapter_titles[i], i + 1))  # not 0 based since user-facing
+                chap_titles.append((current_book.chapter_titles[i], i - section_count + 1))  # not 0 based since user-facing
 
         context = {'Title': current_book.title, 'Author': current_book.author, 'Language': current_book.language,
                    'Translator': current_book.translater, "HasTranslator": current_book.translater != '',
@@ -36,18 +36,26 @@ class Index(View):
 class Chapter(View):
     def get(self, request, book_id, chapter_id):
         current_book = get_object_or_404(Book, pk=book_id)
-        max_chapters = len(current_book.chapter_divisions) - 1
+        max_chapters = len(current_book.chapter_divisions) - len(current_book.section_indices) - 1
+        sections_before = 0
+        # adjusted_chap_id is for the book model, chapter_id is for front-end
+        adjusted_chap_id = chapter_id
+        for index_value in current_book.section_indices:
+            if index_value < adjusted_chap_id:
+                sections_before += 1
+                adjusted_chap_id += 1
+
         if chapter_id > max_chapters or chapter_id < 1:
             raise Http404(f'No such chapter: {chapter_id}')
-        chapter_start = current_book.chapter_divisions[chapter_id - 1]
-        chapter_end = current_book.chapter_divisions[chapter_id]
+        chapter_start = current_book.chapter_divisions[adjusted_chap_id - 1]
+        chapter_end = current_book.chapter_divisions[adjusted_chap_id]
         content = '\n'.join(current_book.full_text.splitlines()[chapter_start:chapter_end])
         has_next_chapter = chapter_id < max_chapters
         has_prev_chapter = chapter_id > 1
-        title = current_book.title + " Ch: " + current_book.chapter_titles[chapter_id - 1]
+        title = current_book.title + " Ch: " + current_book.chapter_titles[adjusted_chap_id - 1]
 
         context = {'Book_Title': current_book.title,
-                   'Chap_Title': current_book.chapter_titles[chapter_id - 1],
+                   'Chap_Title': current_book.chapter_titles[adjusted_chap_id - 1],
                    'Content': content,
                    'book_id': current_book.pk,
                    'chapter_id': chapter_id,
