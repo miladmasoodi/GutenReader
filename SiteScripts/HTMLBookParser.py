@@ -64,6 +64,8 @@ def parse_html_file(html_file):
     pg_id = lines[pg_id_line][offset:end_position]
 
     end_of_toc = find_line_of_value(lines, "<!--end chapter-->")
+    if end_of_toc == -1:
+        end_of_toc = 4000
     toc_lines = find_all_lines_of_value(lines[:end_of_toc], 'href="#')
 
     # to see if it started counting non-toc <a>'s
@@ -83,15 +85,22 @@ def parse_html_file(html_file):
 
     # split into diff strings before reformating so chap positions aren't lost
     # then remove undesired lines and/or elements
-    undesirable_samples = ['href="#contents"']
+    undesirable_samples = ['href="#contents', '<img']
     chap_portions = []
     for i in range(1, len(chap_starts)):
-        chap_portions[i-1] = lines[chap_starts[i-1]:chap_starts[i]]
+        chap_portions.append(lines[chap_starts[i-1]:chap_starts[i]])
+
     for chapter in chap_portions:
         for undesirable_sample in undesirable_samples:
-            line = find_line_of_value(chapter, undesirable_sample)
-            if line != -1:
+            lines = find_all_lines_of_value(chapter, undesirable_sample)
+            for line in lines:
                 chapter[line] = ''
+        # for end of chapter, <hr used as an early cutoff
+        end_of_chapter = chapter[-10:]
+        line = find_line_of_value(end_of_chapter, '<hr')
+        if line != -1:
+            for i in range(line, 9):
+                chapter[-1*i] = ''
     
     # recombine into a single string
     if len(chap_portions)+1 != len(chap_starts):  # valid values needed to update chap_starts
@@ -100,9 +109,10 @@ def parse_html_file(html_file):
     string_portions = []
     chap_starts[0] = 0
     for index in range(len(chap_portions)):
+        line_count = len(chap_portions[index])
         s = '\n'.join(chap_portions[index])
         string_portions.append(s)
-        chap_starts[index+1] = chap_starts[index] + len(s)
+        chap_starts[index+1] = chap_starts[index] + line_count
     full_text = '\n'.join(string_portions)
 
     book_dict = {"meta_values": meta_values, "full_text": full_text,
@@ -149,7 +159,8 @@ def revise_toc_lines(toc_lines):
             old_avg_diff = old_sum / (i - 1)
             old_sum = new_sum
             # cutoff toc_lines at first big jump in lines relative to previous jumps
-            if abs(old_avg_diff - new_diff) > old_avg_diff / 2.0:
+            if abs(old_avg_diff - new_diff) > old_avg_diff*1.5:
+                print("old_diff: " + str(old_avg_diff) + " new_diff: " + str(new_diff))
                 return toc_lines[:i]
     return toc_lines
 
