@@ -14,7 +14,7 @@ def get_section_indices(chapter_divisions):
 
 def parse_html_file(html_file):
     # parse desired data from a gutenburg project book html file
-    # return: dict of: meta_values, full_text, chap_titles, chap_starts, meta_tags
+    # return: dict of: meta_values, full_text, chap_titles, chap_starts, section_indices, meta_tags, pg_id
     START_TEXT = "*** START OF"
     END_TEXT = "*** END OF"
 
@@ -115,9 +115,15 @@ def parse_html_file(html_file):
         chap_starts[index+1] = chap_starts[index] + line_count
     full_text = '\n'.join(string_portions)
 
-    book_dict = {"meta_values": meta_values, "full_text": full_text,
-                 "chapter_titles": chap_titles, "chapter_divisions": chap_starts,
-                 "meta_tags": meta_tags, "pg_id": pg_id}
+    section_indices = get_section_indices(chap_starts)
+
+    book_dict = {"meta_values": meta_values,
+                 "full_text": full_text,
+                 "chapter_titles": chap_titles,
+                 "chapter_divisions": chap_starts,
+                 "section_indices": section_indices,
+                 "meta_tags": meta_tags,
+                 "pg_id": pg_id}
     return book_dict
 
 
