@@ -2,10 +2,9 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
-from SiteScripts import TxtBookParser
 from SiteScripts import HTMLBookParser
 from mimetypes import guess_type
-
+import os
 
 """File field, Text field(contents of .txt), 
 Meta - Title, Author, Language: Char fields(3) 
@@ -52,25 +51,26 @@ class SubjectTag(models.Model):
 def parse_book(sender, instance, created, **kwargs):
     if created:
         cur_book_file = instance.book_file
-        print(cur_book_file)
-        f = open(cur_book_file.path, "r", encoding='utf-8')
         context_type = guess_type(cur_book_file.path)[0]
         if context_type != "text/html":
             raise Exception("HTML Uploads Only: " + str(context_type))
 
+        f = open(cur_book_file.path, "r", encoding='utf-8')
         result = HTMLBookParser.parse_html_file(f)
+        f.close()
 
-        chap_divs = result["chapter_divisions"]  # <v move to parse_html_file()
-        section_indices = HTMLBookParser.get_section_indices(result["chapter_divisions"])
         new_book = Book(title=result["meta_values"][0],
                         author=result["meta_values"][1],
                         language=result["meta_values"][2],
                         translater=result["meta_values"][3],
                         full_text=result["full_text"],
-                        chapter_titles=result["chapter_titles"], chapter_divisions=chap_divs,
-                        section_indices=section_indices, project_gutenberg_id=result["pg_id"])
+                        chapter_titles=result["chapter_titles"],
+                        chapter_divisions=result["chapter_divisions"],
+                        section_indices=result["section_indices"],
+                        project_gutenberg_id=result["pg_id"])
         new_book.save()
         add_subject_tags(new_book, result["meta_tags"])
+        os.remove(cur_book_file.path)
         instance.delete()
 
 
@@ -79,4 +79,5 @@ def add_subject_tags(book, subject_tags: list):
         tag_model, tag_bool = SubjectTag.objects.get_or_create(content=tag)
         tag_model.books.add(book)
         tag_model.save()
-        print("Added tag " + str(tag_model))
+        if tag_bool:
+            print("NEW Tag: " + str(tag_model))
