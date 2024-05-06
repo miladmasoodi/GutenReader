@@ -27,15 +27,30 @@ class Index(View):
             else:
                 chap_titles.append((current_book.chapter_titles[i], i - section_count + 1))  # not 0 based since user-facing
 
-        context = {'Title': current_book.title, 'Author': current_book.author, 'Language': current_book.language,
-                   'Translator': current_book.translater, "HasTranslator": current_book.translater != '',
-                   'Chap_Titles': chap_titles, 'book_id': current_book.pk, 'tag_list': tag_list}
+        context = {'Title': current_book.title,
+                   'Author': current_book.author,
+                   'Language': current_book.language,
+                   'Translator': current_book.translater,
+                   "HasTranslator": current_book.translater != '',
+                   'Chap_Titles': chap_titles,
+                   'book_id': current_book.pk,
+                   'tag_list': tag_list,
+                   'view_count': current_book.view_count
+                   }
         return render(request, "book_index.html", context)
 
 
 class Chapter(View):
     def get(self, request, book_id, chapter_id):
         current_book = get_object_or_404(Book, pk=book_id)
+
+        viewed_books = request.session.get("viewed_books", [])
+        if book_id not in viewed_books:
+            viewed_books.append(book_id)
+            request.session["viewed_books"] = viewed_books
+            current_book.view_count = current_book.view_count + 1
+            current_book.save()
+
         max_chapters = len(current_book.chapter_divisions) - len(current_book.section_indices) - 1
         sections_before = 0
         # adjusted_chap_id is for the book model, chapter_id is for front-end

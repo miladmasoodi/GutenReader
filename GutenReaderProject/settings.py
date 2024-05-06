@@ -139,4 +139,7 @@ Q_CLUSTER = {
     'sync': True,
     'orm': 'default'
 }
+# session age to expire IN SECONDS
+SESSION_COOKIE_AGE = 60 * 60
+
 

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {%  block Title %} {{ Title }} {% endblock %}
 {%  block Content %}
-    <div class="container p-5 ms-5">
+    <div class="container p-5 ms-5 ">
         <h2 class="">
             Books
         </h2>
@@ -11,6 +11,7 @@
               <div class="card-body">
                 <a class="text-decoration-none" href="/book/{{ book.pk }}"><h5 class="card-title">{{ book.title }}</h5></a>
                 <h6 class="card-subtitle mb-1 text-muted">{{ book.author }}</h6>
+                <h6 class="card-subtitle mt-1 text-muted position-absolute bottom-0 start-0 m-2">{{ book.view_count }}</h6>  
                 <a href="/book/{{ book.pk }}/1" class="btn btn-outline-primary position-absolute bottom-0 end-0 m-2">Part 1</a>
               </div>
             </div>
