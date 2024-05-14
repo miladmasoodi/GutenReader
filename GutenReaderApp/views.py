@@ -24,8 +24,8 @@ class Index(View):
             if len(current_book.section_indices) > section_count and current_book.section_indices[section_count] == i:
                 section_count += 1
                 chap_titles.append((current_book.chapter_titles[i], -1))
-            else:
-                chap_titles.append((current_book.chapter_titles[i], i - section_count + 1))  # not 0 based since user-facing
+            else:  # not 0 based since user-facing
+                chap_titles.append((current_book.chapter_titles[i], i - section_count + 1))
 
         context = {'Title': current_book.title,
                    'Author': current_book.author,
@@ -81,3 +81,19 @@ class Chapter(View):
                    'Title': title,
                    }
         return render(request, "chapter.html", context)
+
+class SubjectTags(View):
+    def get(self, request):
+        tags = list(SubjectTag.objects.all())
+        content_and_book_count = []
+        for tag in tags:
+            number_of_books = len(tag.books.all())
+            if number_of_books == 1:
+                content_and_book_count.append((tag.books.all()[0].pk, tag.content, number_of_books))
+            else:
+                content_and_book_count.append((tag.pk, tag.content, number_of_books))
+
+        context = {'tags': content_and_book_count,
+                   'Title': "Subject Tags"
+                   }
+        return render(request, "subject_tags.html", context)
