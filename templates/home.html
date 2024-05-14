@@ -12,7 +12,7 @@
           {% for book in books %}
             <div class="col-2-sm card m-2 shadow-sm " style="width: 16rem; height: 9rem">
               <div class="card-body p-1 px-2">
-                <a class="text-decoration-none" href="/book/{{ book.pk }}">
+                <a class="text-decoration-none" href="/books/{{ book.pk }}">
                     <h5 class="card-title">
                         {{ book.title }}
                     </h5>
@@ -25,7 +25,7 @@
                   {% bs_icon 'eye' size='1em' color='#b9c3c6' extra_classes="bi-valign-bottom"%} 
                 </h6>
                 <h6 class="card-subtitle mt-1 text-muted text-end position-absolute bottom-0 start-0 mx-3 mb-2">
-                  <a href="/book/{{ book.pk }}/1" class="btn btn-outline-primary ">
+                  <a href="/books/{{ book.pk }}/1" class="btn btn-outline-primary ">
                     Part 1
                   </a>
                 </h6>
