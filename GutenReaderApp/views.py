@@ -7,7 +7,7 @@ from django.http import Http404
 # Create your views here.
 class Home(View):
     def get(self, request):
-        books = list(Book.objects.all())
+        books = list(Book.objects.order_by("-view_count").all())
         return render(request, "home.html", {"books": books, "Title": "Home - GutenReader"})
 
 

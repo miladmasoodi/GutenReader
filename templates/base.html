@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -9,11 +10,13 @@
     <title> {{ Title }} </title>
   </head>
   <body >
+  {% load bootstrap_icons %}
+  <link rel="stylesheet" href="{% static 'bootstrap_icons/css/bootstrap_icons.css' %}">
       <div class="mb-3 p-3 bg-dark text-white text-center shadow">
         <h2> <a class=" text-white text-decoration-none" href="/"> GutenReader </a> </h2>
       </div>
   
-    <div class="container mx-auto col-10 border-start border-end border-2 shadow min-vh-100 row justify-content-center">
+    <div class="container-sm mx-auto border-start border-end border-2 shadow min-vh-100 row justify-content-center">
     {% block Content %} 
         Content Missing 
     {% endblock %}
