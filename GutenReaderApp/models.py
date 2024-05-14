@@ -17,7 +17,7 @@ class Book(models.Model):
     title = models.CharField(max_length=100)
     author = models.CharField(max_length=100)
     language = models.CharField(max_length=50)
-    translater = models.CharField(max_length=100, default="")
+    translater = models.CharField(max_length=100, default="", blank=True)
     view_count = models.IntegerField(default=0)
     do_recommend_count = models.IntegerField(default=0)
     do_not_recommend_count = models.IntegerField(default=0)
@@ -29,7 +29,7 @@ class Book(models.Model):
     # Chapter Info
     chapter_titles = models.JSONField(default=list)
     chapter_divisions = models.JSONField(default=list)
-    section_indices = models.JSONField(default=list)
+    section_indices = models.JSONField(default=list, blank=True)
 
     def __str__(self):
         return self.title
