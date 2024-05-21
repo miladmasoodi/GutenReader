@@ -74,9 +74,8 @@ def parse_html_file(html_file):
     chap_ids = find_id_values(lines, toc_lines)
     chap_starts = find_ch_start_lines(lines, chap_ids)
     chap_titles = find_chap_titles(lines, toc_lines)
-    # print(chap_titles)
-    # print(chap_ids)
-    # print(chap_starts)
+    trim_chap_titles(chap_titles)
+
     if len(chap_ids) < len(chap_starts):
         raise Exception("too many chap_starts")
 
@@ -125,6 +124,16 @@ def parse_html_file(html_file):
                  "meta_tags": meta_tags,
                  "pg_id": pg_id}
     return book_dict
+
+
+def trim_chap_titles(chap_titles):
+    # Trim undesired parts from chap_titles
+    UNWANTED_IN_TITLE = "Chapter: "
+    if chap_titles[0].startswith(UNWANTED_IN_TITLE) and not chap_titles[1].startswith(UNWANTED_IN_TITLE):
+        chap_titles[0] = chap_titles[0][len(UNWANTED_IN_TITLE):]
+    for i in range(len(chap_titles)):
+        if chap_titles[i][-1] is ",":
+            chap_titles[i] = chap_titles[i][:-1]
 
 
 def get_meta_tags(sample, meta_portion):
