@@ -1,13 +1,15 @@
+import os
+import re
+from mimetypes import guess_type
+from zipfile import ZipFile, is_zipfile
+
+from django.core.files import File
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+
 from SiteScripts import HTMLBookParser
-from mimetypes import guess_type
-from zipfile import ZipFile, is_zipfile
-import os
-import re
-from django.core.files import File
 
 """File field, Text field(contents of .txt), 
 Meta - Title, Author, Language: Char fields(3) 
@@ -57,55 +59,48 @@ def has_dir(zip_file):
         if info.is_dir():
             return True
     return False
+def extract_path(zip_file, regex_pattern):
+    name_list = zip_file.namelist()
+    match_count = 0
+    match = ""
+    print(name_list)
+    for name in name_list:
+        regex_match = re.search(regex_pattern, name)
+        if regex_match is not None:
+            print(name)
+            match_count += 1
+            match = name
+    if match_count != 1:
+        raise Exception("Ambiguous Match Count: " + str(match_count))
+    zip_info = zip_file.getinfo(match)
+    zip_info.filename = os.path.basename(zip_info.filename)
+    path = zip_file.extract(zip_info)
+    return path
 
 
 @receiver(post_save, sender=TextUpload)  # uses signals
 def parse_book(sender, instance, created, **kwargs):
     if created:
-        has_cover = False
         cover_path = ""
         cur_book_file = instance.book_file
-        path = cur_book_file.path
-        context_type = guess_type(path)[0]
-        is_zip = context_type == "application/zip"
+        html_path = cur_book_file.path
+        context_type = guess_type(html_path)[0]
+        is_zip = context_type == "application/zip" or context_type == "application/x-zip-compressed"
         is_html = context_type == "text/html"
-        if not (is_html or (is_zip and is_zipfile(path))):
+        if not (is_html or (is_zip and is_zipfile(html_path))):
             raise Exception("HTML or ZIP Uploads Only: " + str(context_type))
         if is_zip:
-            cover_regex = r"\S*cover.\w+"
-            html_regex = r"\S*.htm\w?"
+            cover_regex = r"\S*cover\.\w+"
+            html_regex = r"\S*\.htm\w?"
 
-            with ZipFile("zip_test.zip", 'r') as zip:
-                x = zip.testzip()
-                info_list = zip.infolist()
-                name_list = zip.namelist()
-                cover_match_count = 0
-                cover_match = ""
-                html_match_count = 0
-                html_match = ""
-                print(name_list)
-                for name in name_list:
-                    cover_match = re.search(cover_regex, name)
-                    if cover_match is not None:
-                        print(cover_match.string)
-                        cover_match_count += 1
-                        cover_match = cover_match.string
-                    html_match = re.search(html_regex, name)
-                    if html_match is not None:
-                        print(html_match.string)
-                        html_match_count += 1
-                        html_match = html_match.string
-                if html_match_count != 1:
-                    raise Exception("Html not found")
-                if cover_match_count != 1:
-                    raise Exception("Cover not found")
-                cover_path = zip.extract(cover_match, "book_covers/")
-                print(cover_path)
-                html_path = zip.extract(html_match)
-                print(html_path)
-                path = html_path
+            with ZipFile(html_path, 'r') as zip:
+                zip_valid = zip.testzip() is None
+                if not zip_valid:
+                    raise Exception("ZIP not valid")
+                cover_path = extract_path(zip, cover_regex)
+                html_path = extract_path(zip, html_regex)
 
-        f = open(path, "r", encoding='utf-8')
+        f = open(html_path, "r", encoding='utf-8')
         try:
             result = HTMLBookParser.parse_html_file(f)
         except Exception as e:
@@ -120,16 +115,16 @@ def parse_book(sender, instance, created, **kwargs):
                             chapter_divisions=result["chapter_divisions"],
                             section_indices=result["section_indices"],
                             project_gutenberg_id=result["pg_id"])
-            if has_cover:
-                local_file = open(cover_path, "rb")
-                django_file = File(local_file)
-                new_book.book_cover.save('Cover.jpg', django_file)
-                local_file.close()
+            new_book.save()
+            if cover_path != "":
+                with open(cover_path, 'rb') as f:
+                    image_file = File(f)
+                    new_book.book_cover.save(str(result["pg_id"]) + "cover.png", image_file, save=True)
             new_book.save()
             add_subject_tags(new_book, result["meta_tags"])
         f.close()
 
-        os.remove(path)
+        os.remove(html_path)
         instance.delete()
 
 
