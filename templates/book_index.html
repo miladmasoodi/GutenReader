@@ -3,25 +3,24 @@
 {%  block Content %}
 
   <div class="container row justify-content-center ">
-    <div class="d-flex flex-wrap justify-content-center">
-        <h1 class="text-black-50 display-5 p-2"> {{ Title }}</h1>
+    <div class="col-md-4 justify-content-center">
+        <img src="{{cover_url}}" class="img-thumbnail float_start mt-1 p-2"  alt="Book cover for {{ Title }}">
     </div>
-    <br>
-    <div class=" ps-5 ms-5">
+    <div class="justify-content-center col-md-7 p-2">
+        <h1 class="text-black-50 display-5 "> {{ Title }}</h1>
+        <div class="ps-3 py-2">
         <h4><span class="fs-5 fw-light">By </span> {{ Author }}</h4>
         <h4><span class="fs-5 fw-light">In </span> {{ Language }}</h4>
         {% if HasTranslator %}
           <h4><span class="fs-5 fw-light">Translated by</span> {{ Translator }} </h4>
         {% endif %}
-    </div>
-    <br>
-
-    <div class="d-flex flex-wrap p-1 m-1 justify-content-center">
+        </div>
+        <div class="d-flex flex-wrap p-1 m-1 ps-2">
         <h4 class="mt-2">
             Tags:
         </h4>
       {% for tag in tag_list %}
-        <div class="d-block card shadow-sm m-2 p-2 border border-info rounded-3 border-2"
+        <div class="d-block card shadow-sm m-2 p-2 border border-info rounded-pill border-2"
              style="max-width: 22rem; height: 2rem">
             <h6 class="m-0 p-1 fw-bolder text-truncate text-dark position-relative top-50 start-50 translate-middle ">
                 {{ tag }}
@@ -29,7 +28,10 @@
         </div>
       {% endfor %}
     </div>
-    <div class="row col-9">
+    </div>
+    <br>
+
+    <div class="row col-lg-7">
         <table class="table table-hover p-2 ">
           <thead>
             <tr>

@@ -26,6 +26,11 @@ class Index(View):
                 chap_titles.append((current_book.chapter_titles[i], -1))
             else:  # not 0 based since user-facing
                 chap_titles.append((current_book.chapter_titles[i], i - section_count + 1))
+        cover_url = ""
+        try:
+            cover_url = current_book.book_cover.url
+        except Exception as e:
+            cover_url = "/media/book_covers/default_cover.png"
 
         context = {'Title': current_book.title,
                    'Author': current_book.author,
@@ -35,7 +40,8 @@ class Index(View):
                    'Chap_Titles': chap_titles,
                    'book_id': current_book.pk,
                    'tag_list': tag_list,
-                   'view_count': current_book.view_count
+                   'view_count': current_book.view_count,
+                   'cover_url': cover_url
                    }
         return render(request, "book_index.html", context)
 
