@@ -6,7 +6,7 @@
 
     <div class="btn-toolbar justify-content-between ">
         <div class="btn-group ps-5 float-start">
-            <a  class="btn btn-outline-primary "  href="/book/{{ book_id }}">Index</a>
+            <a  class="btn btn-outline-primary "  href="/books/{{ book_id }}">Index</a>
         </div>
         <div class="btn-group  pe-5 float-end" role="group" aria-label="Previous, Next Links">
             <a  class="btn  btn-outline-primary{% if has_prev_chapter %}"  href="/books/{{ book_id }}/{{ chapter_id_prev }}" {% else %}disabled"{% endif %}>Prev</a>
