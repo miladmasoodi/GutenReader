@@ -8,6 +8,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from django.urls import reverse
 
 from SiteScripts import HTMLBookParser
 
@@ -15,6 +16,7 @@ from SiteScripts import HTMLBookParser
 Meta - Title, Author, Language: Char fields(3) 
 Chapters - titles, start and end(by char not lines) JSON field(2)
 """
+#  add get_absolute_url for relevant models.
 
 
 class Book(models.Model):
@@ -30,7 +32,7 @@ class Book(models.Model):
     project_gutenberg_id = models.IntegerField(default=-1)
 
     # Content
-    #default cover image isn't indivdualy saved in DB
+    #default cover image isn't individualy saved in DB
     book_cover = models.ImageField(upload_to="book_covers/", blank=True, null=True)
     full_text = models.TextField()
     # Chapter Info
@@ -40,6 +42,9 @@ class Book(models.Model):
 
     def __str__(self):
         return self.title
+
+    def get_absolute_url(self):
+        return reverse("index", kwargs={"book_id": self.pk})
 
 
 class TextUpload(models.Model):
@@ -53,12 +58,18 @@ class SubjectTag(models.Model):
     def __str__(self):
         return self.content
 
+    def get_absolute_url(self):
+        return reverse("tag-index", kwargs={"tag_id": self.pk})
+
+
 def has_dir(zip_file):
     info_list = zip_file.infolist()
     for info in info_list:
         if info.is_dir():
             return True
     return False
+
+
 def extract_path(zip_file, regex_pattern):
     name_list = zip_file.namelist()
     match_count = 0

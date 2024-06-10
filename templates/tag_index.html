@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{%  block Title %} {{ Title }} {% endblock %}
+{%  block Content %}
+
+  <div class="container row justify-content-center ">
+    <div>
+    <h2 class="p-2 text-center display-4">{{ tag.content }}</h2>
+
+    <div class="mx-auto col-lg-9 p-1 ">
+        <table class="table table-hover p-2 ">
+          <thead>
+            <tr>
+                <th class="fs-3 fw-normal text-muted">
+                    Books tagged with <span class="text-dark fst-italic">{{ tag.content }}</span>
+                </th>
+            </tr>
+          </thead>
+          <tbody class=" bg-light">
+            {% for book in books %}
+              <tr class="border-bottom ">
+                    <td class="p-0" >
+                        <a class=" nav-link width-100 height-100 text-primary fs-4 "
+                           href="{{book.get_absolute_url}}"> {{ book.title }}
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+  </div>
+  </div>
+{% endblock %}

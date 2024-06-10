@@ -7,7 +7,7 @@ from django.http import Http404
 # Create your views here.
 class Home(View):
     def get(self, request):
-        books = list(Book.objects.order_by("-view_count").all())
+        books = list(Book.objects.order_by("-view_count").all())  # "-" at start makes it descending order
         return render(request, "home.html", {"books": books, "Title": "Home - GutenReader"})
 
 
@@ -103,3 +103,21 @@ class SubjectTags(View):
                    'Title': "Subject Tags"
                    }
         return render(request, "subject_tags.html", context)
+
+class TagIndex(View):
+    def get(self, request, tag_id):
+        current_tag = get_object_or_404(SubjectTag, pk=tag_id)
+        books = current_tag.books.all()
+        number_of_books = len(books)
+        if number_of_books == 1:  # auto-redirect to only book, of only 1 book
+            redirect(list(books)[0])
+        ordered_books = list(books.order_by("-view_count").all())
+        context = {'books': ordered_books,
+                   'Title': f"Subject: {current_tag.content}",
+                   'tag': current_tag
+                   }
+        return render(request, "tag_index.html", context)
+
+
+
+
