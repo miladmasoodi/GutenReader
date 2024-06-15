@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django.shortcuts import render, redirect, get_object_or_404
 from GutenReaderApp.models import Book, SubjectTag
 from django.views import View
@@ -17,7 +18,7 @@ class Index(View):
         subject_tags = SubjectTag.objects.filter(books=current_book)
         tag_list = []
         for tag in subject_tags:
-            tag_list.append(tag.content)
+            tag_list.append(tag)
         chap_titles = []
         section_count = 0
         for i in range(len(current_book.chapter_titles)):
@@ -29,18 +30,13 @@ class Index(View):
         cover_url = ""
         try:
             cover_url = current_book.book_cover.url
-        except Exception as e:
+        except Exception as e:  # should be value error
             cover_url = "/media/book_covers/default_cover.png"
 
-        context = {'Title': current_book.title,
-                   'Author': current_book.author,
-                   'Language': current_book.language,
-                   'Translator': current_book.translater,
+        context = {'Book': current_book,
                    "HasTranslator": current_book.translater != '',
                    'Chap_Titles': chap_titles,
-                   'book_id': current_book.pk,
                    'tag_list': tag_list,
-                   'view_count': current_book.view_count,
                    'cover_url': cover_url
                    }
         return render(request, "book_index.html", context)
@@ -90,14 +86,14 @@ class Chapter(View):
 
 class SubjectTags(View):
     def get(self, request):
-        tags = list(SubjectTag.objects.all())
+        tags = list(SubjectTag.objects.annotate(num_books=Count("books")).order_by('-num_books').all())
         content_and_book_count = []
         for tag in tags:
-            number_of_books = len(tag.books.all())
+            number_of_books = tag.num_books
             if number_of_books == 1:
-                content_and_book_count.append((tag.books.all()[0].pk, tag.content, number_of_books))
+                content_and_book_count.append((tag.books.all()[0], tag.content, number_of_books))
             else:
-                content_and_book_count.append((tag.pk, tag.content, number_of_books))
+                content_and_book_count.append((tag, tag.content, number_of_books))
 
         context = {'tags': content_and_book_count,
                    'Title': "Subject Tags"

@@ -1,18 +1,18 @@
 {% extends "base.html" %}
-{%  block Title %} {{ Title }} {% endblock %}
+{%  block Title %} {{ Book.title }} {% endblock %}
 {%  block Content %}
 
   <div class="container row justify-content-center ">
     <div class="col-md-4 justify-content-center">
-        <img src="{{cover_url}}" class="img-thumbnail float_start mt-1 p-2"  alt="Book cover for {{ Title }}">
+        <img src="{{cover_url}}" class="img-thumbnail float_start mt-1 p-2"  alt="Book cover for {{ Book.title  }}">
     </div>
     <div class="justify-content-center col-md-7 p-2">
-        <h1 class="text-black-50 display-5 "> {{ Title }}</h1>
+        <h1 class="text-black-50 display-5 "> {{ Book.title  }}</h1>
         <div class="ps-3 py-2">
-        <h4><span class="fs-5 fw-light">By </span> {{ Author }}</h4>
-        <h4><span class="fs-5 fw-light">In </span> {{ Language }}</h4>
+        <h4><span class="fs-5 fw-light">By </span> {{ Book.author }}</h4>
+        <h4><span class="fs-5 fw-light">In </span> {{ Book.language }}</h4>
         {% if HasTranslator %}
-          <h4><span class="fs-5 fw-light">Translated by</span> {{ Translator }} </h4>
+          <h4><span class="fs-5 fw-light">Translated by</span> {{ Book.translater }} </h4>
         {% endif %}
         </div>
         <div class="d-flex flex-wrap p-1 m-1 ps-2">
@@ -23,7 +23,9 @@
         <div class="d-block card shadow-sm m-2 p-2 border border-info rounded-pill border-2"
              style="max-width: 22rem; height: 2rem">
             <h6 class="m-0 p-1 fw-bolder text-truncate text-dark position-relative top-50 start-50 translate-middle ">
-                {{ tag }}
+                <a class="p-0 nav-link width-100 height-100 text-dark" href="{{ tag.get_absolute_url }}">
+                    {{ tag.content }}
+                </a>
             </h6>
         </div>
       {% endfor %}
@@ -52,7 +54,7 @@
                 <tr class="border-bottom ">
                     <td class="p-0" >
                         <a class=" nav-link width-100 height-100 text-primary" 
-                           href="/books/{{ book_id }}/{{ chap.1 }}"> {{ chap.0 }} 
+                           href="{{ Book.get_absolute_url }}{{ chap.1 }}"> {{ chap.0 }} 
                         </a>
                     </td>
                 </tr>
