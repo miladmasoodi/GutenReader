@@ -12,10 +12,36 @@
   <body >
   {% load bootstrap_icons %}
   <link rel="stylesheet" href="{% static 'bootstrap_icons/css/bootstrap_icons.css' %}">
-      <div class="mb-3 p-3 bg-dark text-white text-center shadow">
-        <h1> <a class=" text-white text-decoration-none" href="/"> GutenReader </a> </h1>
-      </div>
-  
+{#      <div class="mb-3 p-3 bg-dark text-white text-center shadow">#}
+{#          <nav class="navbar navbar-dark bg-dark">#}
+{#          <h1> <a class=" text-white text-decoration-none" href="/"> GutenReader </a> </h1>#}
+{#          <h3> <a class=" text-white text-decoration-none" href="/subject-tags"> Subject-Tags </a> </h3>#}
+{#          </nav>#}
+{#      </div>#}
+
+<nav class="navbar navbar-expand-md navbar-light bg-light py-3 px-2">
+  <div class="container-fluid">
+    <a class="navbar-brand fs-2" href="/">GutenReader</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 fs-5  ">
+        <li class="nav-item ps-2">
+          <a class="nav-link" aria-current="page" href="/">Shelves</a>
+        </li>
+        <li class="nav-item  ps-2">
+          <a class="nav-link" href="/subject-tags/">Subject-Tags</a>
+        </li>
+      </ul>
+{#      <form class="d-flex">#}
+{#        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">#}
+{#        <button class="btn btn-outline-success" type="submit">Search</button>#}
+{#      </form>#}
+    </div>
+  </div>
+</nav>
+
     <div class="container-sm mx-auto border-start border-end border-2 shadow min-vh-100 row justify-content-center">
     {% block Content %} 
         Content Missing 
