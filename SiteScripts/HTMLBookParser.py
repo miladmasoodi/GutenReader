@@ -73,14 +73,31 @@ def parse_html_file(html_file):
 
     chap_ids = find_id_values(lines, toc_lines)
     chap_starts = find_ch_start_lines(lines, chap_ids)
-    chap_titles = find_chap_titles(lines, toc_lines)
+    chap_titles_a = find_chap_titles(lines, toc_lines)
+    if len(chap_titles_a) > len(chap_starts):
+        chap_titles_a = chap_titles_a[:len(chap_starts)]
+
+    chap_titles_a_merged = "".join(chap_titles_a)
+    num_count = 0
+    total_length = len(chap_titles_a_merged)
+    for char in chap_titles_a_merged:
+        if char.isdecimal():
+            num_count += 1
+    num_portion = (num_count+0.0)/total_length
+    if num_portion > .6:  # arbitrary cutoff
+        print("Using alternate source for chapter titles")
+        chap_titles_b = find_chap_titles(lines, chap_starts)  # called with chap_starts rather than toc_lines
+
+        chap_titles = chap_titles_b
+    else:
+        chap_titles = chap_titles_a
+
     trim_chap_titles(chap_titles)
 
     if len(chap_ids) < len(chap_starts):
         raise Exception("too many chap_starts")
 
     chap_starts.append(end_line)
-    print(meta_tags)
 
     # split into diff strings before reformating so chap positions aren't lost
     # then remove undesired lines and/or elements
@@ -132,7 +149,7 @@ def trim_chap_titles(chap_titles):
     if chap_titles[0].startswith(UNWANTED_IN_TITLE) and not chap_titles[1].startswith(UNWANTED_IN_TITLE):
         chap_titles[0] = chap_titles[0][len(UNWANTED_IN_TITLE):]
     for i in range(len(chap_titles)):
-        if chap_titles[i][-1] is ",":
+        if len(chap_titles[i]) != 0 and chap_titles[i][-1] == ",":
             chap_titles[i] = chap_titles[i][:-1]
 
 
@@ -203,7 +220,7 @@ def find_ch_start_lines(html_lines, ch_ids):
     for line_index in id_lines:
         cur_line = html_lines[line_index]
         cur_id = ch_ids[ch_id_index]
-        if ('id="' + cur_id) in cur_line:
+        if ('id="' + cur_id + '"') in cur_line:
             ch_id_index += 1
             chap_starts.append(line_index)
             if ch_id_index == len(ch_ids):
@@ -226,11 +243,19 @@ def find_chap_titles(lines, result):
     chapter_titles = []
     for ch_line in result:
         cur_line = lines[ch_line]
+        string_to_append = ""
         end_index = cur_line.find("</")
-        start_index = -1
-        for i in range(end_index - 1, 0, -1):
-            if cur_line[i] == ">":
-                start_index = i + 1
-                break
-        chapter_titles.append("" + cur_line[start_index:end_index])
+
+        while end_index != -1:
+            start_index = -1
+            for i in range(end_index - 1, 0, -1):
+                if cur_line[i] == ">":
+                    start_index = i + 1
+                    break
+            string_to_append = cur_line[start_index:end_index]
+            if string_to_append == "":
+                end_index = cur_line.find("</", end_index+1)
+            else:
+                end_index = -1
+        chapter_titles.append("" + string_to_append)
     return chapter_titles
