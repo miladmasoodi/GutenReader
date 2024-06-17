@@ -1,20 +1,39 @@
 {% extends "base.html" %}
+{% load bootstrap_icons %}
+{% load humanize %}
 {%  block Title %} {{ Title }} {% endblock %}
 {%  block Content %}
-    <div class="container p-5 ms-5">
-        <h2 class="">
+    <div class="container-fluid col-12 py-2">
+        <h2 class="text-center p-2">
             Books
         </h2>
-        <div class="d-flex flex-wrap ">
+        <div >
+        <div class="row  flex-wrap justify-content-center mx-auto">
           {% for book in books %}
-            <div class="card m-2 shadow-sm" style="width: 16rem; height: 9rem">
-              <div class="card-body">
-                <a class="text-decoration-none" href="/book/{{ book.pk }}"><h5 class="card-title">{{ book.title }}</h5></a>
-                <h6 class="card-subtitle mb-1 text-muted">{{ book.author }}</h6>
-                <a href="/book/{{ book.pk }}/1" class="btn btn-outline-primary position-absolute bottom-0 end-0 m-2">Part 1</a>
+            <div class="col-2-sm card m-2 shadow-sm " style="width: 16rem; height: 9rem">
+              <div class="card-body p-1 px-2">
+                <a class="text-decoration-none" href="/books/{{ book.pk }}">
+                    <h5 class="card-title">
+                        {{ book.title }}
+                    </h5>
+                </a>
+                <h6 class="card-subtitle mb-1 text-muted ms-3">
+                    {{ book.author }}
+                </h6>
+                <h6 class="card-subtitle mt-1 text-muted text-end position-absolute bottom-0 end-0 mx-3 mb-2">
+                  {{ book.view_count|intcomma }}
+                  {% bs_icon 'eye' size='1em' color='#b9c3c6' extra_classes="bi-valign-bottom"%} 
+                </h6>
+                <h6 class="card-subtitle mt-1 text-muted text-end position-absolute bottom-0 start-0 mx-3 mb-2">
+                  <a href="/books/{{ book.pk }}/1" class="btn btn-outline-primary ">
+                    Part 1
+                  </a>
+                </h6>
+
               </div>
             </div>
           {% endfor %}
+        </div>
         </div>
     </div>
 {% endblock %}

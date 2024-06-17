@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{%  block Title %} {{ Title }} {% endblock %}
+{%  block Content %}
+    <h2 class="text-center p-2">
+            Subject Tags
+    </h2>
+    <div class="container row p-1 flex-wrap justify-content-center">
+          {% for tag in tags %}
+            <div class=" card shadow-sm m-2 p-0 border border rounded-3 border-1" 
+                 style="max-width: 32rem; background-color: #f8f8f8">
+            
+              
+                <a class="col-8 nav-link  width-100 height-100 fs-5 text-dark text-truncate pe-0" 
+                   href="{{tag.0.get_absolute_url}}">
+                    
+                {{ tag.1 }}
+                  </a>
+            <div>
+              <h5 class="m-0 py-1 position-absolute top-50 end-0 translate-middle border-start ps-1 pe-0 border-1">
+                Books: {{ tag.2 }}
+              </h5>
+            </div>
+            
+            </div>
+              
+          {% endfor %}
+    </div>
+      
+                
+{% endblock %}
