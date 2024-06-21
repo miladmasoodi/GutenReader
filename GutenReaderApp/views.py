@@ -71,10 +71,9 @@ class Chapter(View):
         has_prev_chapter = chapter_id > 1
         title = current_book.title + " Ch: " + current_book.chapter_titles[adjusted_chap_id - 1]
 
-        context = {'Book_Title': current_book.title,
+        context = {'book': current_book,
                    'Chap_Title': current_book.chapter_titles[adjusted_chap_id - 1],
                    'Content': content,
-                   'book_id': current_book.pk,
                    'chapter_id': chapter_id,
                    'chapter_id_prev': chapter_id - 1,
                    'chapter_id_next': chapter_id + 1,
