@@ -1,3 +1,5 @@
+import string
+
 from django.db.models import Count
 from django.shortcuts import render, redirect, get_object_or_404
 from GutenReaderApp.models import Book, SubjectTag
@@ -5,11 +7,60 @@ from django.views import View
 from django.http import Http404
 
 
+MAX_PAGE_ITEMS = 300
+
 # Create your views here.
 class Home(View):
     def get(self, request):
+        return render(request, "home.html",
+                      {"Title": "GutenReader"})
+class Shelf(View):
+    def get(self, request):
         books = list(Book.objects.order_by("-view_count").all())  # "-" at start makes it descending order
-        return render(request, "home.html", {"books": books, "Title": "Home - GutenReader"})
+        return render(request, "shelf.html",
+                      {"books": books, "page_header": "Books", "Title": "Books - GutenReader"})
+
+class About(View):
+    def get(self, request):
+        books = list(Book.objects.order_by("-view_count").all())  # "-" at start makes it descending order
+        return render(request, "about.html",
+                      {"Title": "About - GutenReader"})
+class Search(View):
+    def post(self, request):
+        user_query: string = request.POST['search']
+        if user_query.startswith('by:'):  # search by author
+            user_query = user_query[3:].strip()
+            filtered_books = Book.objects.filter(author__icontains=user_query)
+            ordered_filtered_books = list(filtered_books.order_by("-view_count").all())
+            return render(request,
+                          "shelf.html",
+                          {"books": ordered_filtered_books[:MAX_PAGE_ITEMS],
+                           "page_header": f"Books by \"{user_query}\"",
+                           "Title": ("Search: " + user_query)})
+        elif user_query.startswith('tag:'):  # search by tag
+            user_query = user_query[4:].strip()
+            filtered_tags = SubjectTag.objects.filter(content__icontains=user_query)
+            ordered_filtered_tags = list(filtered_tags.annotate(num_books=Count("books")).order_by('-num_books'))
+            content_and_book_count = []
+            for tag in ordered_filtered_tags:
+                number_of_books = tag.num_books
+                if number_of_books == 1:
+                    content_and_book_count.append((tag.books.all()[0], tag.content, number_of_books))
+                else:
+                    content_and_book_count.append((tag, tag.content, number_of_books))
+            return render(request,
+                          "subject_tags.html",
+                          {'tags': content_and_book_count[:MAX_PAGE_ITEMS],
+                           "page_header": f"\"{user_query}\" Tags",
+                           'Title': ("Search: " + user_query)})
+        else:  # search by title
+            filtered_books = Book.objects.filter(title__icontains=user_query)
+            ordered_filtered_books = list(filtered_books.order_by("-view_count").all())
+            return render(request,
+                          "shelf.html",
+                          {"books": ordered_filtered_books[:MAX_PAGE_ITEMS],
+                           "page_header": f"\"{user_query}\" Books",
+                           "Title": ("Search: " + user_query)})
 
 
 class Index(View):
@@ -37,7 +88,8 @@ class Index(View):
                    "HasTranslator": current_book.translater != '',
                    'Chap_Titles': chap_titles,
                    'tag_list': tag_list,
-                   'cover_url': cover_url
+                   'cover_url': cover_url,
+                   'Title': current_book.title + " - GutenReader",
                    }
         return render(request, "book_index.html", context)
 
@@ -79,9 +131,10 @@ class Chapter(View):
                    'chapter_id_next': chapter_id + 1,
                    'has_next_chapter': has_next_chapter,
                    'has_prev_chapter': has_prev_chapter,
-                   'Title': title,
+                   'Title': title + " - GutenReader",
                    }
         return render(request, "chapter.html", context)
+
 
 class SubjectTags(View):
     def get(self, request):
@@ -94,25 +147,23 @@ class SubjectTags(View):
             else:
                 content_and_book_count.append((tag, tag.content, number_of_books))
 
-        context = {'tags': content_and_book_count,
-                   'Title': "Subject Tags"
+        context = {'tags': content_and_book_count[:MAX_PAGE_ITEMS],
+                   "page_header": "Subject Tags",
+                   'Title': "Subject Tags - GutenReader"
                    }
         return render(request, "subject_tags.html", context)
+
 
 class TagIndex(View):
     def get(self, request, tag_id):
         current_tag = get_object_or_404(SubjectTag, pk=tag_id)
         books = current_tag.books.all()
         number_of_books = len(books)
-        if number_of_books == 1:  # auto-redirect to only book, of only 1 book
+        if number_of_books == 1:  # if only 1 book: redirect to that book
             redirect(list(books)[0])
         ordered_books = list(books.order_by("-view_count").all())
         context = {'books': ordered_books,
-                   'Title': f"Subject: {current_tag.content}",
+                   'Title': f"Subject: {current_tag.content} - GutenReader",
                    'tag': current_tag
                    }
         return render(request, "tag_index.html", context)
-
-
-
-

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load bootstrap_icons %}
+{% load humanize %}
+{% block Title %} {{ Title }} {% endblock %}
+{% block Content %}
+
+<div class="container mt-1">
+  <div class="row">
+    <!-- Scrollspy Navigation -->
+    <nav id="navbar-example2" class="navbar text-center px-3 py-3 my-2 col-md-2 d-none d-md-block rounded-3 bg-light
+        border border-2 border-white shadow-md"
+        style="">
+        <div class="position-sticky" style="top: 0;">
+          <ul class="nav nav-pills flex-column">
+            <li class="nav-item border-bottom border-white">
+              <a class="nav-link active" href="#about">About</a>
+            </li>
+            <li class="nav-item border-bottom border-white">
+              <a class="nav-link" href="#section1">Section 1</a>
+            </li>
+            <li class="nav-item border-bottom border-white">
+              <a class="nav-link" href="#section2">Project Gutenberg</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#section3">Why?</a>
+            </li>
+          </ul>
+      </div>
+    </nav>
+
+    <div data-bs-spy="scroll" data-bs-target="#navbar-example2" data-bs-smooth-scroll="true" class="scrollspy-example col-md-10 p-3  row justify-content-center" tabindex="0">
+      <div id="about" class="row justify-content-center">
+        <h2 class="text-center pt-0 pb-1 text-primary-emphasis display-5">
+        About GutenReader
+        </h2>
+        <hr class="w-75" style="color: #be6900">
+      </div>
+
+      <div id="section1" class="mb-4">
+            <h4 class="display-7 text-primary" style="font-family: 'Roboto', sans-serif;">Why?</h4>
+      </div>
+      <div id="section2" class="my-3 container pe-md-5">
+          <div class="text-center mb-4">
+            <h4 class="display-7 text-primary" style="font-family: 'Roboto', sans-serif;">Project Gutenberg</h4>
+            <p class="fs-6 text-secondary" style="font-family: 'Lato', sans-serif;">
+                Project Gutenberg, named after Johannes Gutenberg, the inventor of the movable type printing press, 
+                began in 1971 as a visionary endeavor to digitize and make accessible the vast expanse of literature in
+                the public domain. Johannes Gutenberg's invention in the mid-15th century revolutionized the production
+                of books, making literature more accessible and affordable, and laid the foundation for the widespread 
+                dissemination of knowledge. Inspired by this transformative innovation, Michael S. Hart founded Project
+                Gutenberg with a similar mission for the digital age. The project started with the digitization of the 
+                United States Declaration of Independence, and over the decades, it has grown exponentially, now 
+                offering tens of thousands of free eBooks. By leveraging the power of the internet, Project Gutenberg 
+                continues to fulfill its mission of democratizing access to literature, echoing Gutenberg's original 
+                impact on the availability of the written word.
+            </p>
+            <hr class="my-4">
+          </div>
+      </div>
+    
+        <div id="section3" class="my-3 container pe-md-5">
+              <div class="text-center mb-4">
+                <h4 class="display-7 text-primary" style="font-family: 'Roboto', sans-serif;">Why?</h4>
+                <p class="fs-6 text-secondary" style="font-family: 'Lato', sans-serif;">
+                  Public domain books, especially classic literature, offer a wealth of benefits to readers and society.
+                    One of the key advantages is that these timeless works are freely accessible to everyone. This means
+                    anyone with an internet connection can enjoy the masterpieces of authors like Shakespeare, Dickens,
+                    and Austen without any cost. Such accessibility democratizes knowledge, allowing students, educators,
+                    and literature enthusiasts to explore these important texts without financial barriers.
+                </p>
+                <p class="fs-6 text-secondary" style="font-family: 'Lato', sans-serif;">
+                  Classic literature in the public domain also helps preserve our cultural heritage, ensuring that the
+                    stories and ideas that have shaped our history remain available for future generations. Moreover,
+                    these works provide endless opportunities for creativity and inspiration, as writers and artists can
+                    adapt and reinterpret them in new and exciting ways. In essence, public domain classics
+                    enrich our lives by making invaluable cultural and educational resources available to all.
+                </p>
+                <hr class="my-4">
+              </div>
+          </div>  
+      </div>
+    </div>
+</div>
+
+
+{% endblock %}
