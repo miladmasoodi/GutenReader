@@ -1,0 +1,46 @@
+$primary: #ff5f00;
+$warning: #ffa600;
+$success: #ffe4c4;
+$light: #fef2e5;
+$dark: #5d3000;
+$focus-ring-opacity:    .0;
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/variables-dark";
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/utilities";
+
+
+$box-shadow-md:               0 .25rem .5rem rgba($black, .125);
+// Store existing shadow values
+$existing-shadow-values: map-get(map-get($utilities, "shadow"), "values");
+
+// Replace shadow values with a merge of existing + new
+$utilities: map-merge(
+  $utilities,
+  (
+    "shadow": (
+      property: box-shadow,
+      class: shadow,
+      values: map-merge(
+        $existing-shadow-values,
+        (
+          md: $box-shadow-md
+        )
+      )
+    )
+  )
+);
+
+
+
+@import 'bootstrap/scss/bootstrap';
+
+.nav-gradient-bg {
+        background: linear-gradient(110deg, #ff6e00, #ff8c00, #ffaf00, #f58c00);
+    }
+.x-gradient-bg {
+        background: linear-gradient(90deg,  rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.1));
+    }
+
