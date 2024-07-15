@@ -1,60 +1,87 @@
 {% extends "base.html" %}
+{% load bootstrap_icons %}
+{% load humanize %}
 {%  block Title %} {{ Book.title }} {% endblock %}
 {%  block Content %}
 
-  <div class="container row justify-content-center ">
-    <div class="col-md-4 justify-content-center">
-        <img src="{{cover_url}}" class="img-thumbnail float_start mt-1 p-2"  alt="Book cover for {{ Book.title  }}">
+  <div class="container row justify-content-center my-3">
+    <div class="col-11 col-sm-8 col-lg-5 col-xl-4 justify-content-center ">
+        <img src="{{cover_url}}" class="figure-img rounded-3  w-100 shadow-md border border-white border-2 mt-1 p-0"
+             alt="Book cover for {{ Book.title  }}"
+             style="max-width: 30rem;" >
     </div>
-    <div class="justify-content-center col-md-7 p-2">
-        <h1 class="text-black-50 display-5 "> {{ Book.title  }}</h1>
-        <div class="ps-3 py-2">
-        <h4><span class="fs-5 fw-light">By </span> {{ Book.author }}</h4>
-        <h4><span class="fs-5 fw-light">In </span> {{ Book.language }}</h4>
-        {% if HasTranslator %}
-          <h4><span class="fs-5 fw-light">Translated by</span> {{ Book.translater }} </h4>
-        {% endif %}
+    <div class="justify-content-center col-lg-7 p-2">
+        <div class="border border-2 border-white rounded-3 row justify-content-center shadow-md mx-auto">
+            <h1 class="text-primary-emphasis display-5 mx-2 mx-md-3 text-center w-100">{{ Book.title }}</h1>
+            <hr class="w-75 mx-1">
         </div>
-        <div class="d-flex flex-wrap p-1 m-1 ps-2">
-        <h4 class="mt-2">
-            Tags:
-        </h4>
-      {% for tag in tag_list %}
-        <div class="d-block card shadow-sm m-2 p-2 border border-info rounded-pill border-2"
-             style="max-width: 22rem; height: 2rem">
-            <h6 class="m-0 p-1 fw-bolder text-truncate text-dark position-relative top-50 start-50 translate-middle ">
-                <a class="p-0 nav-link width-100 height-100 text-dark" href="{{ tag.get_absolute_url }}">
-                    {{ tag.content }}
-                </a>
-            </h6>
-        </div>
-      {% endfor %}
-    </div>
-    </div>
-    <br>
 
-    <div class="row col-lg-7">
-        <table class="table table-hover p-2 ">
-          <thead>
+        <div class="justify-content-center row mx-2 mx-md-3 mx-lg-4 my-3 my-md-4 my-lg-4 col-lg-7 col-xl-6 rounded-3 bg-light
+        border border-2 border-white p-1 shadow-md">
+          <table class="m-0 table-sm table-borderless table-light align-middle text-end ">
+              <tr class="border-bottom border-white">
+                  <td>Author:</td>
+                  <td class="fs-5 text-start">{{ Book.author }}</td>
+              </tr>
+              <tr class="border-bottom border-white">
+                  <td>Language:</td>
+                  <td class="fs-5 text-start py-1">{{ Book.language }}</td>
+              </tr>
+              {% if HasTranslator %}
+              <tr class="border-bottom border-white">
+                  <td>Translator:</td>
+                  <td class="fs-5 text-start py-1">{{ Book.translater }}</td>
+              </tr>
+              {% endif %}
+              <tr>
+                  <td>Views:</td>
+                  <td class="fs-5 text-start">{{ Book.view_count|intcomma }}</td>
+              </tr>
+          </table>
+        </div>
+        <div class="d-flex flex-wrap p-1 m-1 ps-2 ">
+            <h4 class="mt-2 me-1">
+                Tags:
+            </h4>
+          {% for tag in tag_list %}
+            <div class="d-block card shadow-md my-2 mx-1 m-md-2 p-2 border border-primary rounded-pill border-2 hover-grow"
+                 style="max-width: 22rem; height: 2rem">
+                <h6 class="m-0 p-0 fw-bolder text-truncate text-dark
+                position-relative top-50 start-50 translate-middle">
+                    <a class="p-1 nav-link width-100 height-100 text-black"
+                       href="{{ tag.get_absolute_url }}">
+                        {{ tag.content }}
+                    </a>
+                </h6>
+            </div>
+          {% endfor %}
+        </div>
+    </div>
+
+    <div class="row col-10 col-md-9 col-lg-8 col-xl-7 shadow
+    bg-light border border-2 border-white p-2 rounded-4 m-md-1 m-lg-2 mt-lg-3">
+        <table class="table table-hover p-2 m-0 table-light">
+          <thead >
             <tr>
-                <th class="fs-3 fw-normal text-muted">
-                    Index
+                <th class="fs-2 fw-normal text-muted">
+                  <span class="ms-2">Index</span>
                 </th>
             </tr>
           </thead>
-          <tbody class=" bg-light">
+          <tbody class=" ">
             {% for chap in Chap_Titles %}
               {% if chap.1 == -1 %}
-                <tr class="border-bottom border-dark">
-                    <th class="text-dark">
+                <tr class=" border-bottom border-dark">
+                    <th class="text-primary-emphasis">
                         {{ chap.0 }}
                     </th>
                 </tr>
               {% else %}
-                <tr class="border-bottom ">
+                <tr class=" border-1 border-top-0 border-end-0 border-start-0 border-success">
                     <td class="p-0" >
-                        <a class=" nav-link width-100 height-100 text-primary" 
-                           href="{{ Book.get_absolute_url }}{{ chap.1 }}"> {{ chap.0 }} 
+                        <a class="nav-link width-100 height-100 text-primary p-2 ps-4 ms-1"
+                           href="{{ Book.get_absolute_url }}{{ chap.1 }}">
+                            {{ chap.0 }}
                         </a>
                     </td>
                 </tr>

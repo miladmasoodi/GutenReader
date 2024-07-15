@@ -74,11 +74,9 @@ def extract_path(zip_file, regex_pattern):
     name_list = zip_file.namelist()
     match_count = 0
     match = ""
-    print(name_list)
     for name in name_list:
         regex_match = re.search(regex_pattern, name)
         if regex_match is not None:
-            print(name)
             match_count += 1
             match = name
     if match_count != 1:
@@ -135,7 +133,7 @@ def parse_book(sender, instance, created, **kwargs):
             add_subject_tags(new_book, result["meta_tags"])
         f.close()
 
-        os.remove(html_path)
+        os.remove(cur_book_file.path)
         instance.delete()
 
 
