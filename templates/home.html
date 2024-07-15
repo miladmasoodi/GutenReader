@@ -5,7 +5,7 @@
 {% block Title %} {{ Title }} {% endblock %}
 {% block Content %}
 
-    <div class="container mt-3">
+    <div class="container mt-3 w-100 px-0">
         <!-- Page Title and Subtitle -->
         <div class="text-center mb-2 justify-content-center row">
             <h2 class="display-4 text-primary" style="font-family: 'Roboto', sans-serif;">Welcome to GutenReader!</h2>
@@ -31,40 +31,81 @@
                                 <h5 class="m-lg-1 m-0">You can search by Title, Author, or Tag</h5>
                             </div>
                         </div>
-                        <div class="carousel-item">
-                            <img src="https://via.placeholder.com/800x400" class="d-block w-100 rounded-2"
-                                 alt="Second Slide">
-                            <div class="carousel-caption d-none d-md-block">
-                                <h5>Second Slide</h5>
-                                <p>Some representative placeholder content for the second slide.</p>
-                            </div>
-                        </div>
-                        <div class="carousel-item">
-                            <img src="https://via.placeholder.com/800x400" class="d-block w-100 rounded-2"
-                                 alt="Third Slide">
-                            <div class="carousel-caption d-none d-md-block">
-                                <h5>Third Slide</h5>
-                                <p>Some representative placeholder content for the third slide.</p>
-                            </div>
-                        </div>
+{#                        <div class="carousel-item">#}
+{#                            <img src="https://via.placeholder.com/800x400" class="d-block w-100 rounded-2"#}
+{#                                 alt="Second Slide">#}
+{#                            <div class="carousel-caption d-none d-md-block">#}
+{#                                <h5>Second Slide</h5>#}
+{#                                <p>Some representative placeholder content for the second slide.</p>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <div class="carousel-item">#}
+{#                            <img src="https://via.placeholder.com/800x400" class="d-block w-100 rounded-2"#}
+{#                                 alt="Third Slide">#}
+{#                            <div class="carousel-caption d-none d-md-block">#}
+{#                                <h5>Third Slide</h5>#}
+{#                                <p>Some representative placeholder content for the third slide.</p>#}
+{#                            </div>#}
+{#                        </div>#}
                     </div>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel"
-                            data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Previous</span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#mainCarousel"
-                            data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Next</span>
-                    </button>
+{#                    <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel"#}
+{#                            data-bs-slide="prev">#}
+{#                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>#}
+{#                        <span class="visually-hidden">Previous</span>#}
+{#                    </button>#}
+{#                    <button class="carousel-control-next" type="button" data-bs-target="#mainCarousel"#}
+{#                            data-bs-slide="next">#}
+{#                        <span class="carousel-control-next-icon" aria-hidden="true"></span>#}
+{#                        <span class="visually-hidden">Next</span>#}
+{#                    </button>#}
                 </div>
             </div>
             </div>
-            <hr class="w-75 my-1">
+            <h2 class="text-center p-2 m-0 mb-4 pb-3 text-white display-4 x-gradient-bg w-100 border border-white border-2 border-start-0 border-end-0">
+                  Top Books
+            </h2>
+    <div class="container col-lg-10 col-md-12 col-12 px-2"
+         style="min-height: 40rem;">
+        <div class="row flex-wrap justify-content-center mx-auto">
+          {% for book in Book_list %}
+            <div class="col-md-12 col-sm-5 col-10 card mb-3 mb-lg-4 shadow-md border border-white border-2 rounded-3 p-0 mx-2">
+              <div class="row g-0">
+                <div class="col-md-4">
+                  <img src="{{book.1}}" class="card-img rounded-3" alt="Book cover for {{ book.0.title }}">
+                </div>
+                <div class="col-md-8">
+                  <div class="card-body">
+                    <a class="text-decoration-none" 
+                        href="{{ book.0.get_absolute_url }}">
+                        <h3 class="card-title text-primary-emphasis">{{ book.0.title }}</h3>
+                    </a>
+                    <hr class="p-0 m-0 my-1">
+                    <p class="fs-5 card-text text-muted mb-0 ms-2">{{ book.0.author }}</p>
+                    <div class="d-flex flex-wrap m-1 mt-md-2 mt-lg-1">
+                        <h5 class="mt-2 me-1">
+                            Tags:
+                        </h5>
+                      {% for tag in book.2 %}
+                        <div class="d-block card shadow-md m-1 mx-md-2 my-lg-2 p-1 border border-primary rounded-pill border-2 hover-grow"
+                             style="max-width: 22rem; height: 2rem; ">
+                            <h6 class="m-0 p-0 fw-bolder text-truncate text-dark
+                            position-relative top-50 start-50 translate-middle">
+                                <a class="p-1 nav-link width-100 height-100 text-black"
+                                   href="{{ tag.get_absolute_url }}">
+                                    {{ tag.content }}
+                                </a>
+                            </h6>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
         </div>
-
     </div>
-
+  </div>
+</div>
 
 {% endblock %}
