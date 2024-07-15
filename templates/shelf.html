@@ -15,7 +15,7 @@
                  style="width: 16rem; height: 8.5rem;">
               <div class="card-body p-1 px-2">
                 <a class="text-decoration-none" 
-                   href="/books/{{ book.pk }}">
+                   href="{{ book.get_absolute_url }}">
                     <h5 class="card-title text-primary-emphasis">
                         {{ book.title }}
                     </h5>
@@ -29,7 +29,7 @@
                 </h6>
                 <h6 class="card-subtitle mt-1 text-end position-absolute bottom-0 start-0 mx-2 mb-2">
                   <a class="btn btn-outline-primary rounded-3" 
-                     href="/books/{{ book.pk }}/1">
+                     href="{{ book.get_absolute_url }}1">
                     Part 1
                   </a>
                 </h6>
