@@ -4,14 +4,17 @@
 {%  block Title %} {{ Book.title }} {% endblock %}
 {%  block Content %}
 
-  <div class="container row justify-content-center">
+  <div class="container row justify-content-center my-3">
     <div class="col-11 col-sm-8 col-md-5 justify-content-center ">
         <img src="{{cover_url}}" class="figure-img rounded-3  w-100 shadow-md border border-white border-2 mt-1 p-0"
              alt="Book cover for {{ Book.title  }}"
              style="max-width: 30rem;" >
     </div>
     <div class="justify-content-center col-md-7 p-2">
-        <h1 class="text-primary-emphasis display-5 text-center mx-2 mx-md-3 text-md-start "> {{ Book.title  }}</h1>
+        <div class="border border-2 border-white rounded-3 row justify-content-center shadow-md mx-auto">
+            <h1 class="text-primary-emphasis display-5 mx-2 mx-md-3 text-center w-100">{{ Book.title }}</h1>
+            <hr class="w-75 mx-1">
+        </div>
 
         <div class="justify-content-center row mx-2 mx-md-3 mx-lg-4 my-3 my-md-4 my-lg-4 col-md-8 col-lg-7 col-xl-6 rounded-3 bg-light
         border border-2 border-white p-1 shadow-md">
@@ -37,11 +40,11 @@
           </table>
         </div>
         <div class="d-flex flex-wrap p-1 m-1 ps-2 ">
-            <h4 class="mt-2">
+            <h4 class="mt-2 me-1">
                 Tags:
             </h4>
           {% for tag in tag_list %}
-            <div class="d-block card shadow-md my-2 mx-1 m-md-2 p-2 border border-primary rounded-pill border-2"
+            <div class="d-block card shadow-md my-2 mx-1 m-md-2 p-2 border border-primary rounded-pill border-2 hover-grow"
                  style="max-width: 22rem; height: 2rem">
                 <h6 class="m-0 p-0 fw-bolder text-truncate text-dark
                 position-relative top-50 start-50 translate-middle">

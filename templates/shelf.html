@@ -6,14 +6,13 @@
     <h2 class="text-center pt-3 pb-1 text-primary-emphasis display-5">
       {{ page_header }}
     </h2>
-    <hr class="w-75" 
-        style="color: #be6900">
+    <hr class="w-75">
     <div class="container-fluid col-10-md pb-2"
          style="min-height: 40rem;">
         <div class="row flex-wrap justify-content-center mx-auto">
           {% for book in books %}
-            <div class="col-2-sm card mx-1 my-2 m-md-2 m-3 p-1 shadow-md bg-light border-white border-2 rounded-3" 
-                 style="width: 16rem; height: 9rem;">
+            <div class="col-2-sm card mx-1 my-2 m-md-2 m-3 p-1 shadow-md bg-light border-white border-2 rounded-4" 
+                 style="width: 16rem; height: 8.5rem;">
               <div class="card-body p-1 px-2">
                 <a class="text-decoration-none" 
                    href="/books/{{ book.pk }}">
@@ -24,12 +23,12 @@
                 <h6 class="card-subtitle mb-1 ms-3 text-dark-emphasis">
                     {{ book.author }}
                 </h6>
-                <h6 class="card-subtitle mt-1 text-dark text-end position-absolute bottom-0 end-0 mx-3 mb-2">
+                <h6 class="card-subtitle mt-1 text-dark text-end position-absolute bottom-0 end-0 mx-2 mb-2">
                   {{ book.view_count|intcomma }}
                   {% bs_icon 'eye' size='1em' color='#f55f2d' extra_classes="bi-valign-bottom"%}
                 </h6>
-                <h6 class="card-subtitle mt-1 text-end position-absolute bottom-0 start-0 mx-3 mb-2">
-                  <a class="btn btn-outline-primary" 
+                <h6 class="card-subtitle mt-1 text-end position-absolute bottom-0 start-0 mx-2 mb-2">
+                  <a class="btn btn-outline-primary rounded-3" 
                      href="/books/{{ book.pk }}/1">
                     Part 1
                   </a>
