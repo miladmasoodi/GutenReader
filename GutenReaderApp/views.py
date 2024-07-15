@@ -8,12 +8,30 @@ from django.http import Http404
 
 
 MAX_PAGE_ITEMS = 300
+def get_cover_url(current_book: Book):
+    cover_url = ""
+    try:
+        cover_url = current_book.book_cover.url
+    except Exception as e:  # should be value error
+        cover_url = "/media/book_covers/default_cover.png"
+    return cover_url
 
 # Create your views here.
 class Home(View):
     def get(self, request):
+        top_5_books = list(Book.objects.order_by("-view_count").all())[:5]
+        book_list = []
+        for book in top_5_books:
+            subject_tags = SubjectTag.objects.filter(books=book)
+            tag_list = []
+            for tag in subject_tags:
+                tag_list.append(tag)
+
+            book_list.append((book, get_cover_url(book), tag_list))
+
         return render(request, "home.html",
-                      {"Title": "GutenReader"})
+                      {"Title": "GutenReader",
+                                'Book_list': book_list})
 class Shelf(View):
     def get(self, request):
         books = list(Book.objects.order_by("-view_count").all())  # "-" at start makes it descending order
@@ -78,11 +96,7 @@ class Index(View):
                 chap_titles.append((current_book.chapter_titles[i], -1))
             else:  # not 0 based since user-facing
                 chap_titles.append((current_book.chapter_titles[i], i - section_count + 1))
-        cover_url = ""
-        try:
-            cover_url = current_book.book_cover.url
-        except Exception as e:  # should be value error
-            cover_url = "/media/book_covers/default_cover.png"
+        cover_url = get_cover_url(current_book)
 
         context = {'Book': current_book,
                    "HasTranslator": current_book.translater != '',
