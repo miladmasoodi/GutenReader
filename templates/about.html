@@ -1,86 +1,131 @@
 {% extends "base.html" %}
 {% load bootstrap_icons %}
-{% load humanize %}
+{% load static %}
 {% block Title %} {{ Title }} {% endblock %}
 {% block Content %}
 
-<div class="container mt-1">
-  <div class="row">
-    <!-- Scrollspy Navigation -->
-    <nav id="navbar-example2" class="navbar text-center px-3 py-3 my-2 col-md-2 d-none d-md-block rounded-3 bg-light
-        border border-2 border-white shadow-md"
-        style="">
-        <div class="position-sticky" style="top: 0;">
-          <ul class="nav nav-pills flex-column">
-            <li class="nav-item border-bottom border-white">
-              <a class="nav-link active" href="#about">About</a>
-            </li>
-            <li class="nav-item border-bottom border-white">
-              <a class="nav-link" href="#section1">Section 1</a>
-            </li>
-            <li class="nav-item border-bottom border-white">
-              <a class="nav-link" href="#section2">Project Gutenberg</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#section3">Why?</a>
-            </li>
-          </ul>
-      </div>
-    </nav>
+    <div class="container mt-1">
+        <div class="row">
+            <!-- Scrollspy Navigation -->
+            <nav id="navbar"
+                 class="navbar text-center px-3 py-3 col-lg-2 col-md-3 d-none d-md-block 
+                 rounded-5 bg-light border border-2 border-white shadow-md">
+                <div class="position-sticky" style="top: 1rem;">
+                    <ul class="nav nav-pills flex-column ">
+                        <li class="nav-item border-bottom border-white">
+                            <a class="nav-link active rounded-pill" href="#mission">Mission</a>
+                        </li>
+                        <li class="nav-item border-bottom border-white">
+                            <a class="nav-link rounded-pill" href="#public-domain">Public Domain</a>
+                        </li>
+                        <li class="nav-item border-bottom border-white">
+                            <a class="nav-link rounded-pill" href="#impact">Impact</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link rounded-pill" href="#project-gutenberg">Project Gutenberg</a>
+                        </li>
 
-    <div data-bs-spy="scroll" data-bs-target="#navbar-example2" data-bs-smooth-scroll="true" class="scrollspy-example col-md-10 p-3  row justify-content-center" tabindex="0">
-      <div id="about" class="row justify-content-center">
-        <h2 class="text-center pt-0 pb-1 text-primary-emphasis display-5">
-        About GutenReader
-        </h2>
-        <hr class="w-75" style="color: #be6900">
-      </div>
+                    </ul>
+                </div>
+            </nav>
 
-      <div id="section1" class="mb-4">
-            <h4 class="display-7 text-primary" style="font-family: 'Roboto', sans-serif;">Why?</h4>
-      </div>
-      <div id="section2" class="my-3 container pe-md-5">
-          <div class="text-center mb-4">
-            <h4 class="display-7 text-primary" style="font-family: 'Roboto', sans-serif;">Project Gutenberg</h4>
-            <p class="fs-6 text-secondary" style="font-family: 'Lato', sans-serif;">
-                Project Gutenberg, named after Johannes Gutenberg, the inventor of the movable type printing press, 
-                began in 1971 as a visionary endeavor to digitize and make accessible the vast expanse of literature in
-                the public domain. Johannes Gutenberg's invention in the mid-15th century revolutionized the production
-                of books, making literature more accessible and affordable, and laid the foundation for the widespread 
-                dissemination of knowledge. Inspired by this transformative innovation, Michael S. Hart founded Project
-                Gutenberg with a similar mission for the digital age. The project started with the digitization of the 
-                United States Declaration of Independence, and over the decades, it has grown exponentially, now 
-                offering tens of thousands of free eBooks. By leveraging the power of the internet, Project Gutenberg 
-                continues to fulfill its mission of democratizing access to literature, echoing Gutenberg's original 
-                impact on the availability of the written word.
-            </p>
-            <hr class="my-4">
-          </div>
-      </div>
-    
-        <div id="section3" class="my-3 container pe-md-5">
-              <div class="text-center mb-4">
-                <h4 class="display-7 text-primary" style="font-family: 'Roboto', sans-serif;">Why?</h4>
-                <p class="fs-6 text-secondary" style="font-family: 'Lato', sans-serif;">
-                  Public domain books, especially classic literature, offer a wealth of benefits to readers and society.
-                    One of the key advantages is that these timeless works are freely accessible to everyone. This means
-                    anyone with an internet connection can enjoy the masterpieces of authors like Shakespeare, Dickens,
-                    and Austen without any cost. Such accessibility democratizes knowledge, allowing students, educators,
-                    and literature enthusiasts to explore these important texts without financial barriers.
-                </p>
-                <p class="fs-6 text-secondary" style="font-family: 'Lato', sans-serif;">
-                  Classic literature in the public domain also helps preserve our cultural heritage, ensuring that the
-                    stories and ideas that have shaped our history remain available for future generations. Moreover,
-                    these works provide endless opportunities for creativity and inspiration, as writers and artists can
-                    adapt and reinterpret them in new and exciting ways. In essence, public domain classics
-                    enrich our lives by making invaluable cultural and educational resources available to all.
-                </p>
-                <hr class="my-4">
-              </div>
-          </div>  
-      </div>
+            <div data-bs-spy="scroll" data-bs-target="#navbar" data-bs-offset="100" data-bs-smooth-scroll="true"
+                 class=" col-md-9 p-3 rounded-2" tabindex="0">
+                <div style="min-height: 3rem;">
+                    <div class="row justify-content-center pe-md-5 text-center">
+                        <h2 class="pt-0 pb-1 text-primary-emphasis display-5">
+                            About GutenReader
+                        </h2>
+                        <hr class="w-75">
+
+                    </div>
+                </div>
+                <div id="mission" class="my-3 container pe-md-5" style="min-height: 16rem;">
+                    <div class="text-center mb-4">
+                        <h4 class="display-7 text-primary" style="font-family: 'Roboto', sans-serif;">Our Mission</h4>
+                        <p class="fs-6 text-secondary" style="font-family: 'Lato', sans-serif;">
+                            GutenReader is a reading platform designed to provide free access to public domain books in
+                            a modernized, user-friendly, and responsive manner. Our mission is rooted in the belief that
+                            knowledge and cultural heritage should be accessible to everyone, regardless of their
+                            financial situation. By offering a vast collection of classic literature, we aim to
+                            democratize access to knowledge, ensuring that timeless works by authors such as
+                            Shakespeare, Dickens, and Austen are available to all. Inspired by the pioneering efforts of
+                            <a class="text-decoration-none" href="https://www.gutenberg.org/">Project Gutenberg</a>,
+                            which revolutionized the digital distribution of literature, GutenReader
+                            builds upon this foundation by offering an enhanced digital reading experience. We strive to
+                            preserve the cultural heritage of these literary masterpieces while making them more
+                            accessible and enjoyable for modern readers. Our platform not only provides easy access to
+                            these works but also serves as a valuable resource for students, educators, and literature
+                            enthusiasts seeking to expand their understanding and enjoyment of classic literature. Join
+                            us in our mission to keep the legacy of great literature alive and thriving in the digital
+                            age.</p>
+                        <hr class="my-4">
+                    </div>
+                </div>
+                <div id="public-domain" class="my-3 container pe-md-5" style="min-height: 16rem;">
+                    <div class="text-center mb-4">
+                        <h4 class="display-7 text-primary" style="font-family: 'Roboto', sans-serif;">What is Public
+                            Domain?</h4>
+                        <p class="fs-6 text-secondary" style="font-family: 'Lato', sans-serif;">
+                            The public domain encompasses creative works to which no exclusive intellectual property
+                            rights apply. These works are free for use by anyone for any purpose, as they are not
+                            protected by copyright, patent, or trademark laws. This may happen for several reasons: the
+                            copyright may have expired, the author may have intentionally relinquished their rights, or
+                            the work may never have been eligible for copyright in the first place. Public domain works
+                            include classic literature, such as the writings of Homer and Mark Twain, historical
+                            documents, scientific research, and folklore. By being freely accessible, these works
+                            provide a rich resource for education, creativity, and innovation. They offer endless
+                            opportunities for creativity and inspiration, as writers and artists can adapt and
+                            reinterpret them in new and exciting ways. The public domain ensures that valuable cultural
+                            and educational materials remain available to the public.
+                        </p>
+                        <hr class="my-4">
+                    </div>
+                </div>
+                <div id="impact" class="my-3 container pe-md-5" style="min-height: 16rem;">
+                    <div class="text-center">
+                        <h4 class="display-7 text-primary" style="font-family: 'Roboto', sans-serif;">Its Impact</h4>
+                        <p class="fs-6 text-secondary" style="font-family: 'Lato', sans-serif;">
+                            Public domain literature has a profound impact on education, culture, and society. These
+                            works provide a rich source of material for educational curricula, allowing students to
+                            study classic texts without the constraints of copyright restrictions. In the cultural
+                            realm, public domain books inspire countless adaptations in film, theater, and art,
+                            breathing new life into timeless stories. Moreover, the accessibility of these works
+                            promotes literacy and intellectual growth, ensuring that everyone has the opportunity to
+                            engage with the foundational texts of our shared heritage. By preserving and disseminating
+                            public domain literature, platforms like GutenReader contribute to the ongoing enrichment of
+                            our collective knowledge and cultural experience.
+                        </p>
+                        <hr class="my-4">
+                    </div>
+                </div>
+                <div id="project-gutenberg" class="mt-3 container pe-md-5" style="min-height: 16rem;">
+                    <div class="text-center">
+                        <h4 class="display-7 text-primary" style="font-family: 'Roboto', sans-serif;">
+                            Project Gutenberg
+                        </h4>
+                        <p class="fs-6 text-secondary" style="font-family: 'Lato', sans-serif;">
+                            Project Gutenberg, named after Johannes Gutenberg, the inventor of the movable type printing
+                            press, began in 1971 as a visionary endeavor to digitize and make accessible the vast
+                            expanse of literature in the public domain. Johannes Gutenberg's invention in the mid-15th
+                            century revolutionized the production of books, making literature more accessible and
+                            affordable, and laid the foundation for the widespread dissemination of knowledge. Inspired
+                            by this transformative innovation, Michael S. Hart founded Project Gutenberg with a similar
+                            mission for the digital age. The project started with the digitization of the United States
+                            Declaration of Independence, and over the decades, it has grown exponentially, now offering
+                            tens of thousands of free eBooks. By leveraging the power of the internet, Project Gutenberg
+                            continues to fulfill its mission of democratizing access to literature, echoing Gutenberg's
+                            original impact on the availability of the written word.
+                        </p>
+                        <figure class="figure col-md-8 col-lg-7 mt-2">
+                            <img src="{% static 'img/GutenbergPress.jpg' %}" class="figure-img img-fluid rounded-4 shadow-md" alt="A Replica of the Gutenberg Press, primarily made of hardwood">
+                            <figcaption class="figure-caption fs-6">A Replica of the Gutenberg Press</figcaption>
+                        </figure>
+
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
-
 
 {% endblock %}
