@@ -3,7 +3,7 @@ $warning: #ffa600;
 $success: #ffe4c4;
 $light: #fef2e5;
 $dark: #5d3000;
-$focus-ring-opacity:    .0;
+$focus-ring-opacity: .0;
 @import "bootstrap/scss/functions";
 @import "bootstrap/scss/variables";
 @import "bootstrap/scss/variables-dark";
@@ -12,35 +12,64 @@ $focus-ring-opacity:    .0;
 @import "bootstrap/scss/utilities";
 
 
-$box-shadow-md:               0 .25rem .5rem rgba($black, .125);
+$box-shadow-md: 0 .25rem .5rem rgba($black, .125);
 // Store existing shadow values
 $existing-shadow-values: map-get(map-get($utilities, "shadow"), "values");
 
 // Replace shadow values with a merge of existing + new
 $utilities: map-merge(
-  $utilities,
-  (
-    "shadow": (
-      property: box-shadow,
-      class: shadow,
-      values: map-merge(
-        $existing-shadow-values,
-        (
-          md: $box-shadow-md
-        )
-      )
-    )
-  )
+                $utilities,
+                (
+                        "shadow": (
+                                property: box-shadow,
+                                class: shadow,
+                                values: map-merge(
+                                                $existing-shadow-values,
+                                                (
+                                                        md: $box-shadow-md
+                                                )
+                                )
+                        )
+                )
 );
-
 
 
 @import 'bootstrap/scss/bootstrap';
 
 .nav-gradient-bg {
-        background: linear-gradient(110deg, #ff6e00, #ff8c00, #ffaf00, #f58c00);
-    }
+  background: linear-gradient(110deg, #ff6e00, #ff8c00, #ffaf00, #f58c00);
+}
+
 .x-gradient-bg {
-        background: linear-gradient(90deg,  rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.1));
-    }
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.1));
+}
+
+.hover-shadow {
+  transition: box-shadow 0.5s ease;
+}
+
+.hover-shadow:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.hover-grow {
+  transition: transform 0.2s ease-in-out;
+}
+
+.hover-grow:hover {
+  transform: scale(1.1);
+}
+
+.icon-offset {
+  position: relative;
+  top: 1px;
+  left: 1px;
+}
+
+.custom-toggler-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M2 2h12M2 8h12M2 14h12'/%3E%3C/svg%3E");
+  width: 20px;
+  height: 25px;
+}
+
 
