@@ -18,6 +18,13 @@ Chapters - titles, start and end(by char not lines) JSON field(2)
 """
 #  add get_absolute_url for relevant models.
 
+def cover_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/book_covers/{1st digit of 6 digit pg_id}/{2nd---}/{3nd---}/{filename}
+    pgid = instance.project_gutenberg_id
+    formatted_pgid = str(pgid).zfill(6)
+    print(formatted_pgid)
+    return "book_covers/{0}/{1}/{2}/{3}".format(formatted_pgid[0], formatted_pgid[1], formatted_pgid[2], filename)
+
 
 class Book(models.Model):
     # Metadata
@@ -33,7 +40,7 @@ class Book(models.Model):
 
     # Content
     #default cover image isn't individualy saved in DB
-    book_cover = models.ImageField(upload_to="book_covers/", blank=True, null=True)
+    book_cover = models.ImageField(upload_to=cover_directory_path, blank=True, null=True)
     full_text = models.TextField()
     # Chapter Info
     chapter_titles = models.JSONField(default=list)
@@ -80,59 +87,65 @@ def extract_path(zip_file, regex_pattern):
             match_count += 1
             match = name
     if match_count != 1:
-        raise Exception("Ambiguous Match Count: " + str(match_count))
+        if match_count == 0:
+            return ""
+        else:
+            raise Exception("Ambiguous Match Count: " + str(match_count))
     zip_info = zip_file.getinfo(match)
     zip_info.filename = os.path.basename(zip_info.filename)
     path = zip_file.extract(zip_info)
     return path
 
 
+def create_book_from_path(book_file_path):
+    cover_path = ""
+    context_type = guess_type(book_file_path)[0]
+    is_zip = context_type == "application/zip" or context_type == "application/x-zip-compressed"
+    is_html = context_type == "text/html"
+    if not (is_html or (is_zip and is_zipfile(book_file_path))):
+        raise Exception("HTML or ZIP Uploads Only: " + str(context_type))
+    if is_zip:
+        cover_regex = r"\S*cover\.\w+"
+        html_regex = r"\S*\.htm\w?"
+
+        with ZipFile(book_file_path, 'r') as zip:
+            zip_valid = zip.testzip() is None
+            if not zip_valid:
+                raise Exception("ZIP not valid")
+            cover_path = extract_path(zip, cover_regex)
+            html_path = extract_path(zip, html_regex)
+
+    f = open(html_path, "r", encoding='utf-8')
+    try:
+        result = HTMLBookParser.parse_html_file(f)
+    except Exception as e:
+        print("Failed to Parse, \nException: " + str(e))
+    else:
+        new_book = Book(title=result["meta_values"][0],
+                        author=result["meta_values"][1],
+                        language=result["meta_values"][2],
+                        translater=result["meta_values"][3],
+                        full_text=result["full_text"],
+                        chapter_titles=result["chapter_titles"],
+                        chapter_divisions=result["chapter_divisions"],
+                        section_indices=result["section_indices"],
+                        project_gutenberg_id=result["pg_id"])
+        new_book.save()
+        if cover_path != "":
+            with open(cover_path, 'rb') as f:
+                image_file = File(f)
+                new_book.book_cover.save(str(result["pg_id"]) + "cover.png", image_file, save=True)
+        new_book.save()
+        add_subject_tags(new_book, result["meta_tags"])
+    f.close()
+
+
 @receiver(post_save, sender=TextUpload)  # uses signals
-def parse_book(sender, instance, created, **kwargs):
+def process_upload(sender, instance, created, **kwargs):
     if created:
-        cover_path = ""
         cur_book_file = instance.book_file
-        html_path = cur_book_file.path
-        context_type = guess_type(html_path)[0]
-        is_zip = context_type == "application/zip" or context_type == "application/x-zip-compressed"
-        is_html = context_type == "text/html"
-        if not (is_html or (is_zip and is_zipfile(html_path))):
-            raise Exception("HTML or ZIP Uploads Only: " + str(context_type))
-        if is_zip:
-            cover_regex = r"\S*cover\.\w+"
-            html_regex = r"\S*\.htm\w?"
-
-            with ZipFile(html_path, 'r') as zip:
-                zip_valid = zip.testzip() is None
-                if not zip_valid:
-                    raise Exception("ZIP not valid")
-                cover_path = extract_path(zip, cover_regex)
-                html_path = extract_path(zip, html_regex)
-
-        f = open(html_path, "r", encoding='utf-8')
-        try:
-            result = HTMLBookParser.parse_html_file(f)
-        except Exception as e:
-            print("Failed to Parse, \nException: " + str(e))
-        else:
-            new_book = Book(title=result["meta_values"][0],
-                            author=result["meta_values"][1],
-                            language=result["meta_values"][2],
-                            translater=result["meta_values"][3],
-                            full_text=result["full_text"],
-                            chapter_titles=result["chapter_titles"],
-                            chapter_divisions=result["chapter_divisions"],
-                            section_indices=result["section_indices"],
-                            project_gutenberg_id=result["pg_id"])
-            new_book.save()
-            if cover_path != "":
-                with open(cover_path, 'rb') as f:
-                    image_file = File(f)
-                    new_book.book_cover.save(str(result["pg_id"]) + "cover.png", image_file, save=True)
-            new_book.save()
-            add_subject_tags(new_book, result["meta_tags"])
-        f.close()
-
+        book_file_path = cur_book_file.path
+        create_book_from_path(book_file_path)
         os.remove(cur_book_file.path)
         instance.delete()
 
@@ -143,4 +156,7 @@ def add_subject_tags(book, subject_tags: list):
         tag_model.books.add(book)
         tag_model.save()
         if tag_created:
-            print("NEW Tag: " + str(tag_model))
+            try:
+                print("NEW Tag: " + str(tag_model.content))
+            except UnicodeEncodeError as e:
+                print("Failed to print")
