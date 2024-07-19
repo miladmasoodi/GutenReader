@@ -36,10 +36,23 @@ class Book(models.Model):
     do_recommend_count = models.IntegerField(default=0)
     do_not_recommend_count = models.IntegerField(default=0)
     date_added = models.DateTimeField(default=timezone.now)
+    """
+    If a new Book model is being added with a previously existing/used PG_ID: 
+    the new model will copy/keep certain metadata (view_count, do_recommend_count, do_not_recommend_count) 
+    from the existing model before deleting the older one
+    """
     project_gutenberg_id = models.IntegerField(default=-1)
 
+
+    """
+    Expected to always be True, meaning that the copyright status was listed as: "Public domain in the USA." 
+    Stored as verification that copyright status was checked
+    """
+    verified_public_domain = models.BooleanField(default=False)
+
+
     # Content
-    #default cover image isn't individualy saved in DB
+    # default cover image isn't individually saved in DB
     book_cover = models.ImageField(upload_to=cover_directory_path, blank=True, null=True)
     full_text = models.TextField()
     # Chapter Info
@@ -121,6 +134,19 @@ def create_book_from_path(book_file_path):
     except Exception as e:
         print("Failed to Parse, \nException: " + str(e))
     else:
+        view_count = 0
+        rec_count = 0
+        dn_rec_count = 0
+        pg_id = result["pg_id"]
+        book_copies = Book.objects.filter(project_gutenberg_id=pg_id)
+        if len(book_copies) > 0:
+            latest_copy = book_copies.latest("date_added")
+            view_count = latest_copy.view_count
+            rec_count = latest_copy.do_recommend_count
+            dn_rec_count = latest_copy.do_not_recommend_count
+            Book.delete(latest_copy)
+        else:
+            pass
         new_book = Book(title=result["meta_values"][0],
                         author=result["meta_values"][1],
                         language=result["meta_values"][2],
@@ -129,7 +155,11 @@ def create_book_from_path(book_file_path):
                         chapter_titles=result["chapter_titles"],
                         chapter_divisions=result["chapter_divisions"],
                         section_indices=result["section_indices"],
-                        project_gutenberg_id=result["pg_id"])
+                        project_gutenberg_id=pg_id,
+                        verified_public_domain=result["is_public_domain"],
+                        view_count=view_count,
+                        do_recommend_count=rec_count,
+                        do_not_recommend_count=dn_rec_count)
         new_book.save()
         if cover_path != "":
             with open(cover_path, 'rb') as f:

@@ -6,15 +6,19 @@ def get_section_indices(chapter_divisions):
     section_indices = []
     for i in range(len(chapter_divisions) - 1, 0, -1):
         line_difference = chapter_divisions[i] - chapter_divisions[i - 1]
-        if line_difference < 10:  # 10 is only based on observed line_diffs
+        if line_difference < 15:  # 15 is only based on observed line_diffs
             section_indices.append(i - 1)
     section_indices.reverse()
     return section_indices
 
 
 def parse_html_file(html_file):
-    # parse desired data from a gutenburg project book html file
-    # return: dict of: meta_values, full_text, chap_titles, chap_starts, section_indices, meta_tags, pg_id
+    """
+    Description: Parse desired data from a Project Gutenburg book html file
+    :param html_file: TextIO
+    :return: dict of:
+        meta_values, full_text, chap_titles, chap_starts, section_indices, meta_tags, pg_id, copyright_status
+    """
     START_TEXT = "*** START OF"
     END_TEXT = "*** END OF"
 
@@ -52,11 +56,26 @@ def parse_html_file(html_file):
             meta_values[index] = meta_portion[start_position:end_position]
     print(meta_values)
 
+    # Reads contents of DC subject tags
     SUBJECT_SAMPLE = '<meta name="dc.subject" content="'
     meta_tag_start = find_line_of_value(lines, SUBJECT_SAMPLE)
     meta_portion = lines[meta_tag_start:start_line]  # same values but as a list
     meta_tags = get_meta_tags(SUBJECT_SAMPLE, meta_portion)
 
+    # Checks copyright status
+    is_public_domain = False
+    COPYRIGHT_SAMPLE = '<meta name="dc.rights" content="'
+    copyright_line = find_line_of_value(lines, COPYRIGHT_SAMPLE)
+    offset = len(COPYRIGHT_SAMPLE)
+    end_position = lines[copyright_line][offset:].find('"') + offset
+    copyright_status = lines[copyright_line][offset:end_position]
+    PUBLIC_DOMAIN_SAMPLE = "Public domain in the USA."
+    if copyright_status != PUBLIC_DOMAIN_SAMPLE:
+        raise Exception("Copyright Status: " + str(copyright_status))
+    else:
+        is_public_domain = True
+
+    # Reads project gutenberg's ID number for this book
     PG_ID_SAMPLE = '<meta property="og:url" content="https://www.gutenberg.org/ebooks/'
     pg_id_line = find_line_of_value(lines, PG_ID_SAMPLE)
     offset = len(PG_ID_SAMPLE)
@@ -65,7 +84,7 @@ def parse_html_file(html_file):
 
     end_of_toc = find_line_of_value(lines, "<!--end chapter-->")
     if end_of_toc == -1:
-        end_of_toc = 4000
+        end_of_toc = 8000
     toc_lines = find_all_lines_of_value(lines[:end_of_toc], 'href="#')
 
     # to see if it started counting non-toc <a>'s
@@ -80,12 +99,12 @@ def parse_html_file(html_file):
     chap_titles_a_merged = "".join(chap_titles_a)
     num_count = 0
     total_length = len(chap_titles_a_merged)
-    for char in chap_titles_a_merged:
-        if char.isdecimal():
+    for char in chap_titles_a_merged:  # checks for unusual proportions to judge which set of titles should be used
+        if char.isdecimal() or (char.upper() is 'P'):
             num_count += 1
     num_portion = (num_count+0.0)/total_length
-    if num_portion > .6:  # arbitrary cutoff
-        print("Using alternate source for chapter titles")
+    if num_portion > .4:  # arbitrary cutoff
+        print("Using alternate source for chapter titles")  # to avoid title strings like "pg 34"
         chap_titles_b = find_chap_titles(lines, chap_starts)  # called with chap_starts rather than toc_lines
 
         chap_titles = chap_titles_b
@@ -139,7 +158,8 @@ def parse_html_file(html_file):
                  "chapter_divisions": chap_starts,
                  "section_indices": section_indices,
                  "meta_tags": meta_tags,
-                 "pg_id": pg_id}
+                 "pg_id": pg_id,
+                 "is_public_domain": is_public_domain}
     return book_dict
 
 
