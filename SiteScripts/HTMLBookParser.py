@@ -100,7 +100,7 @@ def parse_html_file(html_file):
     num_count = 0
     total_length = len(chap_titles_a_merged)
     for char in chap_titles_a_merged:  # checks for unusual proportions to judge which set of titles should be used
-        if char.isdecimal() or (char.upper() is 'P'):
+        if char.isdecimal() or (char.upper() == 'P'):
             num_count += 1
     num_portion = (num_count+0.0)/total_length
     if num_portion > .4:  # arbitrary cutoff
