@@ -92,24 +92,54 @@ def parse_html_file(html_file):
 
     chap_ids = find_id_values(lines, toc_lines)
     chap_starts = find_ch_start_lines(lines, chap_ids)
+    if len(toc_lines) > len(chap_starts):
+        toc_lines = toc_lines[:len(chap_starts)]
+
+    chap_titles = []
     chap_titles_a = find_chap_titles(lines, toc_lines)
-    if len(chap_titles_a) > len(chap_starts):
-        chap_titles_a = chap_titles_a[:len(chap_starts)]
+    chap_titles_b = find_chap_titles(lines, chap_starts)
+    # if len(chap_titles_a) > len(chap_starts):
+    #     chap_titles_a = chap_titles_a[:len(chap_starts)]
 
-    chap_titles_a_merged = "".join(chap_titles_a)
-    num_count = 0
-    total_length = len(chap_titles_a_merged)
-    for char in chap_titles_a_merged:  # checks for unusual proportions to judge which set of titles should be used
-        if char.isdecimal() or (char.upper() == 'P'):
-            num_count += 1
-    num_portion = (num_count+0.0)/total_length
-    if num_portion > .4:  # arbitrary cutoff
-        print("Using alternate source for chapter titles")  # to avoid title strings like "pg 34"
-        chap_titles_b = find_chap_titles(lines, chap_starts)  # called with chap_starts rather than toc_lines
+    chap_title_options = [chap_titles_a, chap_titles_b]
+    option_lengths = find_total_lengths(chap_title_options)
+    print("chap_title_options: " + str(chap_title_options))
+    num_portions = find_num_portion(chap_title_options)
+    print("num_portions: " + str(num_portions))
+    chosen_option = -1
+    for i in range(len(chap_title_options)):
+        if num_portions[i] > .4:
+            pass
+        elif chosen_option == -1 or option_lengths[i] > option_lengths[chosen_option]:
+            chosen_option = i
+    if chosen_option == -1:  # if neither is chosen, try 1,2 lines before each
+        alt_chap_starts = [[], [], [], []]
+        for chap_start in chap_starts:
+            alt_chap_starts[0].append(chap_start - 1)
+            alt_chap_starts[1].append(chap_start - 2)
+        for toc_line in toc_lines:
+            alt_chap_starts[2].append(toc_line - 1)
+            alt_chap_starts[3].append(toc_line - 2)
 
-        chap_titles = chap_titles_b
+        chap_title_options = []
+        for alt_starts in alt_chap_starts:
+            chap_title_options.append(find_chap_titles(lines, alt_starts))
+        print("chap_title_options: " + str(chap_title_options))
+        option_lengths = find_total_lengths(chap_title_options)
+        print("option_lengths: " + str(option_lengths))
+        max_length = -1
+        max_length_position = -1
+        for i in range(len(option_lengths)):
+            cur_length = option_lengths[i]
+            if cur_length > max_length:
+                max_length = cur_length
+                max_length_position = i
+        if max_length > 10 and max_length_position != -1:
+            chap_titles = chap_title_options[max_length_position]
+        else:
+            raise Exception("Unable to Parse Titles")
     else:
-        chap_titles = chap_titles_a
+        chap_titles = chap_title_options[chosen_option]
 
     trim_chap_titles(chap_titles)
 
@@ -161,6 +191,30 @@ def parse_html_file(html_file):
                  "pg_id": pg_id,
                  "is_public_domain": is_public_domain}
     return book_dict
+
+
+def find_total_lengths(list_of_lists):
+    list_of_lengths = []
+    for i in range(len(list_of_lists)):
+        merged_list = "".join(list_of_lists[i])
+        total_length = len(merged_list)
+        list_of_lengths.append(total_length)
+    return list_of_lengths
+
+
+def find_num_portion(chap_title_options):
+    all_num_portions = []
+    for i in range(len(chap_title_options)):
+        chap_titles_merged = "".join(chap_title_options[i])
+        num_count = 0
+        total_length = len(chap_titles_merged)
+        for char in chap_titles_merged:  # checks for unusual proportions to judge which set of titles should be used
+            if char.isdecimal() or (char.upper() == 'P'):
+                num_count += 1
+        # added to denominator to avoid /0 error if total_len is 0
+        num_portion = (num_count + 0.0) / (total_length + 0.00001)
+        all_num_portions.append(num_portion)
+    return all_num_portions
 
 
 def trim_chap_titles(chap_titles):
