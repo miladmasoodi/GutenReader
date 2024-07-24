@@ -43,7 +43,6 @@ class Book(models.Model):
     """
     project_gutenberg_id = models.IntegerField(default=-1)
 
-
     """
     Expected to always be True, meaning that the copyright status was listed as: "Public domain in the USA." 
     Stored as verification that copyright status was checked
@@ -112,6 +111,7 @@ def extract_path(zip_file, regex_pattern):
 
 def create_book_from_path(book_file_path):
     cover_path = ""
+    html_path = book_file_path
     context_type = guess_type(book_file_path)[0]
     is_zip = context_type == "application/zip" or context_type == "application/x-zip-compressed"
     is_html = context_type == "text/html"
@@ -134,6 +134,8 @@ def create_book_from_path(book_file_path):
     except Exception as e:
         print("Failed to Parse, \nException: " + str(e))
     else:
+    # if is_zip or is_html:
+    #     result = HTMLBookParser.parse_html_file(f)
         view_count = 0
         rec_count = 0
         dn_rec_count = 0
@@ -165,9 +167,14 @@ def create_book_from_path(book_file_path):
             with open(cover_path, 'rb') as f:
                 image_file = File(f)
                 new_book.book_cover.save(str(result["pg_id"]) + "cover.png", image_file, save=True)
+            os.remove(cover_path)
         new_book.save()
         add_subject_tags(new_book, result["meta_tags"])
     f.close()
+    os.remove(html_path)
+    if html_path != book_file_path:
+        return True
+    return False
 
 
 @receiver(post_save, sender=TextUpload)  # uses signals
@@ -175,8 +182,9 @@ def process_upload(sender, instance, created, **kwargs):
     if created:
         cur_book_file = instance.book_file
         book_file_path = cur_book_file.path
-        create_book_from_path(book_file_path)
-        os.remove(cur_book_file.path)
+        remove_zip = create_book_from_path(book_file_path)
+        if remove_zip:
+            os.remove(cur_book_file.path)
         instance.delete()
 
 
