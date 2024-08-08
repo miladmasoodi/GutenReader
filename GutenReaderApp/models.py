@@ -16,7 +16,8 @@ from SiteScripts import HTMLBookParser
 Meta - Title, Author, Language: Char fields(3) 
 Chapters - titles, start and end(by char not lines) JSON field(2)
 """
-#  add get_absolute_url for relevant models.
+
+
 
 def cover_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/book_covers/{1st digit of 6 digit pg_id}/{2nd---}/{3nd---}/{filename}
@@ -48,7 +49,6 @@ class Book(models.Model):
     Stored as verification that copyright status was checked
     """
     verified_public_domain = models.BooleanField(default=False)
-
 
     # Content
     # default cover image isn't individually saved in DB
@@ -128,14 +128,15 @@ def create_book_from_path(book_file_path):
             cover_path = extract_path(zip, cover_regex)
             html_path = extract_path(zip, html_regex)
 
-    f = open(html_path, "r", encoding='utf-8')
+    html_file = open(html_path, "r", encoding='utf-8')
     try:
-        result = HTMLBookParser.parse_html_file(f)
+        result = HTMLBookParser.parse_html_file(html_file)
     except Exception as e:
         print("Failed to Parse, \nException: " + str(e))
+
     else:
-    # if is_zip or is_html:
-    #     result = HTMLBookParser.parse_html_file(f)
+        # if is_zip or is_html:
+        #     result = HTMLBookParser.parse_html_file(f)
         view_count = 0
         rec_count = 0
         dn_rec_count = 0
@@ -167,14 +168,14 @@ def create_book_from_path(book_file_path):
             with open(cover_path, 'rb') as f:
                 image_file = File(f)
                 new_book.book_cover.save(str(result["pg_id"]) + "cover.png", image_file, save=True)
-            os.remove(cover_path)
         new_book.save()
         add_subject_tags(new_book, result["meta_tags"])
-    f.close()
+    html_file.close()
+    if cover_path != "":
+        os.remove(cover_path)
     os.remove(html_path)
     if html_path != book_file_path:
-        return True
-    return False
+        os.remove(book_file_path)
 
 
 @receiver(post_save, sender=TextUpload)  # uses signals
@@ -182,10 +183,12 @@ def process_upload(sender, instance, created, **kwargs):
     if created:
         cur_book_file = instance.book_file
         book_file_path = cur_book_file.path
-        remove_zip = create_book_from_path(book_file_path)
-        if remove_zip:
-            os.remove(cur_book_file.path)
+        handle_create_book_from_path(book_file_path)
         instance.delete()
+
+
+def handle_create_book_from_path(book_file_path):
+    create_book_from_path(book_file_path)
 
 
 def add_subject_tags(book, subject_tags: list):
