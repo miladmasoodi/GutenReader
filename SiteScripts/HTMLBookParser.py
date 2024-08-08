@@ -71,7 +71,8 @@ def parse_html_file(html_file):
     copyright_status = lines[copyright_line][offset:end_position]
     PUBLIC_DOMAIN_SAMPLE = "Public domain in the USA."
     if copyright_status != PUBLIC_DOMAIN_SAMPLE:
-        raise Exception("Copyright Status: " + str(copyright_status))
+        print(f"Warning, Copyright Status: {copyright_status}")
+        # raise Exception("Copyright Status: " + str(copyright_status))
     else:
         is_public_domain = True
 
@@ -112,7 +113,7 @@ def parse_html_file(html_file):
             pass
         elif chosen_option == -1 or option_lengths[i] > option_lengths[chosen_option]:
             chosen_option = i
-    if chosen_option == -1:  # if neither is chosen, try 1,2 lines before each
+    if chosen_option == -1 or option_lengths[chosen_option] == 0:  # if neither is chosen, try 1,2 lines before each
         alt_chap_starts = [[], [], [], []]
         for chap_start in chap_starts:
             alt_chap_starts[0].append(chap_start - 1)
