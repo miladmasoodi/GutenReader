@@ -2,21 +2,14 @@ import os
 import re
 from mimetypes import guess_type
 from zipfile import ZipFile, is_zipfile
-
+from django.core.cache import cache
 from django.core.files import File
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
 from django.urls import reverse
-
 from SiteScripts import HTMLBookParser
-
-"""File field, Text field(contents of .txt), 
-Meta - Title, Author, Language: Char fields(3) 
-Chapters - titles, start and end(by char not lines) JSON field(2)
-"""
-
 
 
 def cover_directory_path(instance, filename):
@@ -66,13 +59,23 @@ class Book(models.Model):
         return reverse("index", kwargs={"book_id": self.pk})
 
 
-class TextUpload(models.Model):
+class TextUpload(models.Model):  # for development/testing only, not accessible to users
     book_file = models.FileField(upload_to='book_files/')
+
+
+@receiver(post_save, sender=TextUpload)  # uses signals
+def process_upload(sender, instance, created, **kwargs):
+    if created:
+        cur_book_file = instance.book_file
+        book_file_path = cur_book_file.path
+        handle_create_book_from_path(book_file_path)
+        instance.delete()
 
 
 class SubjectTag(models.Model):
     content = models.CharField(max_length=40)
     books = models.ManyToManyField(Book)
+    num_books = models.IntegerField(default=0)
 
     def __str__(self):
         return self.content
@@ -178,15 +181,6 @@ def create_book_from_path(book_file_path):
         os.remove(book_file_path)
 
 
-@receiver(post_save, sender=TextUpload)  # uses signals
-def process_upload(sender, instance, created, **kwargs):
-    if created:
-        cur_book_file = instance.book_file
-        book_file_path = cur_book_file.path
-        handle_create_book_from_path(book_file_path)
-        instance.delete()
-
-
 def handle_create_book_from_path(book_file_path):
     create_book_from_path(book_file_path)
 
@@ -195,9 +189,30 @@ def add_subject_tags(book, subject_tags: list):
     for tag in subject_tags:
         tag_model, tag_created = SubjectTag.objects.get_or_create(content=tag)
         tag_model.books.add(book)
+        tag_model.num_books = len(tag_model.books.all())
         tag_model.save()
         if tag_created:
             try:
                 print("NEW Tag: " + str(tag_model.content))
             except UnicodeEncodeError as e:
                 print("Failed to print")
+
+
+
+# Delete/invalidate cache contents if their source is altered
+# @receiver(post_save, sender=Book)
+@receiver(post_delete, sender=Book)
+def clear_cache(sender, **kwargs):
+    cache.delete('book_models')
+    cache.delete('top_book_models')
+    cache.delete('home_page_books')
+
+
+@receiver(post_save, sender=SubjectTag)
+@receiver(post_delete, sender=SubjectTag)
+def clear_cache(sender, **kwargs):
+    cache.delete('book_models')
+    cache.delete('top_book_models')
+    cache.delete('subject_tag_data')
+    cache.delete('top_subject_tag_data')
+    cache.delete('home_page_books')
