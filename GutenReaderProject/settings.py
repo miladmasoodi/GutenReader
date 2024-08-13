@@ -9,7 +9,8 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import pymysql
+pymysql.install_as_MySQLdb()
 from pathlib import Path
 from decouple import config
 import os
@@ -27,7 +28,8 @@ SECRET_KEY = config('SECRET_KEY'),
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [config('ALLOWED_HOSTS')]
+ALLOWED_HOSTS = ['gutenreader.com','www.gutenreader.com','127.0.0.1','localhost']
+    # [config('ALLOWED_HOSTS')]
 
 
 # Application definition
@@ -44,6 +46,7 @@ INSTALLED_APPS = [
     'django_q',
     'django_bootstrap_icons',
     'django.contrib.humanize',
+    'haystack',
 
 ]
 
@@ -165,8 +168,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 Q_CLUSTER = {
     'name': 'DjangORM',
     'workers': 1,
-    'timeout': 90,
-    'retry': 120,
+    'timeout': 10,
+    'retry': 20,
     'queue_limit': 50,
     'bulk': 10,
     'sync': True,
@@ -191,5 +194,19 @@ LOGGING = {
             'handlers': ['file'],
             'level': 'WARNING',
         },
+    },
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        "LOCATION": config('CACHE_LOCATION'),
+    }
+}
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': os.path.join(BASE_DIR, 'whoosh_index'),  
     },
 }
