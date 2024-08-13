@@ -1,0 +1,4 @@
+{{ object.content }}
+{{ object.pid }}
+{{ object.num_books }}
+

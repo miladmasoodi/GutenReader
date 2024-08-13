@@ -9,8 +9,10 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import pymysql
+pymysql.install_as_MySQLdb()
 from pathlib import Path
+from decouple import config
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -21,12 +23,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-o*8647j=bh5z0h@-ab5n8kxhb2s-9g7x4lu69+2l+6susvrl&$'
+SECRET_KEY = config('SECRET_KEY'),
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['gutenreader.com','www.gutenreader.com','127.0.0.1','localhost']
+    # [config('ALLOWED_HOSTS')]
 
 
 # Application definition
@@ -43,11 +46,13 @@ INSTALLED_APPS = [
     'django_q',
     'django_bootstrap_icons',
     'django.contrib.humanize',
+    'haystack',
 
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -81,10 +86,25 @@ WSGI_APPLICATION = 'GutenReaderProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT'),
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     }
 }
 
@@ -122,6 +142,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = "static"
 
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 
 COMPRESS_ENABLED = True
 COMPRESS_OFFLINE = False
@@ -146,8 +168,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 Q_CLUSTER = {
     'name': 'DjangORM',
     'workers': 1,
-    'timeout': 90,
-    'retry': 120,
+    'timeout': 10,
+    'retry': 20,
     'queue_limit': 50,
     'bulk': 10,
     'sync': True,
@@ -158,4 +180,33 @@ SESSION_COOKIE_AGE = 60 * 60
 
 BS_ICONS_CACHE = os.path.join(STATIC_ROOT, 'icon_cache')
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'django_warnings.log'),
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'WARNING',
+        },
+    },
+}
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        "LOCATION": config('CACHE_LOCATION'),
+    }
+}
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': os.path.join(BASE_DIR, 'whoosh_index'),  
+    },
+}

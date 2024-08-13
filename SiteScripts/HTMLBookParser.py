@@ -6,15 +6,28 @@ def get_section_indices(chapter_divisions):
     section_indices = []
     for i in range(len(chapter_divisions) - 1, 0, -1):
         line_difference = chapter_divisions[i] - chapter_divisions[i - 1]
-        if line_difference < 10:  # 10 is only based on observed line_diffs
+        if line_difference < 15:  # 15 is only based on observed line_diffs
             section_indices.append(i - 1)
     section_indices.reverse()
     return section_indices
 
 
+def get_empty_portion(chap_titles):
+    num_titles = len(chap_titles)
+    num_empty = 0.0
+    for title in chap_titles:
+        if title == "":
+            num_empty += 1
+    return num_empty / num_titles
+
+
 def parse_html_file(html_file):
-    # parse desired data from a gutenburg project book html file
-    # return: dict of: meta_values, full_text, chap_titles, chap_starts, section_indices, meta_tags, pg_id
+    """
+    Description: Parse desired data from a Project Gutenburg book html file
+    :param html_file: TextIO
+    :return: dict of:
+        meta_values, full_text, chap_titles, chap_starts, section_indices, meta_tags, pg_id, copyright_status
+    """
     START_TEXT = "*** START OF"
     END_TEXT = "*** END OF"
 
@@ -52,11 +65,27 @@ def parse_html_file(html_file):
             meta_values[index] = meta_portion[start_position:end_position]
     print(meta_values)
 
+    # Reads contents of DC subject tags
     SUBJECT_SAMPLE = '<meta name="dc.subject" content="'
     meta_tag_start = find_line_of_value(lines, SUBJECT_SAMPLE)
     meta_portion = lines[meta_tag_start:start_line]  # same values but as a list
     meta_tags = get_meta_tags(SUBJECT_SAMPLE, meta_portion)
 
+    # Checks copyright status
+    is_public_domain = False
+    COPYRIGHT_SAMPLE = '<meta name="dc.rights" content="'
+    copyright_line = find_line_of_value(lines, COPYRIGHT_SAMPLE)
+    offset = len(COPYRIGHT_SAMPLE)
+    end_position = lines[copyright_line][offset:].find('"') + offset
+    copyright_status = lines[copyright_line][offset:end_position]
+    PUBLIC_DOMAIN_SAMPLE = "Public domain in the USA."
+    if copyright_status != PUBLIC_DOMAIN_SAMPLE:
+        # print(f"Warning, Copyright Status: {copyright_status}")
+        raise Exception("Copyright Status: " + str(copyright_status))
+    else:
+        is_public_domain = True
+
+    # Reads project gutenberg's ID number for this book
     PG_ID_SAMPLE = '<meta property="og:url" content="https://www.gutenberg.org/ebooks/'
     pg_id_line = find_line_of_value(lines, PG_ID_SAMPLE)
     offset = len(PG_ID_SAMPLE)
@@ -65,7 +94,7 @@ def parse_html_file(html_file):
 
     end_of_toc = find_line_of_value(lines, "<!--end chapter-->")
     if end_of_toc == -1:
-        end_of_toc = 4000
+        end_of_toc = 8000
     toc_lines = find_all_lines_of_value(lines[:end_of_toc], 'href="#')
 
     # to see if it started counting non-toc <a>'s
@@ -73,27 +102,64 @@ def parse_html_file(html_file):
 
     chap_ids = find_id_values(lines, toc_lines)
     chap_starts = find_ch_start_lines(lines, chap_ids)
+    if len(toc_lines) > len(chap_starts):
+        toc_lines = toc_lines[:len(chap_starts)]
+
+    chap_titles = []
     chap_titles_a = find_chap_titles(lines, toc_lines)
-    if len(chap_titles_a) > len(chap_starts):
-        chap_titles_a = chap_titles_a[:len(chap_starts)]
+    chap_titles_b = find_chap_titles(lines, chap_starts)
+    # if len(chap_titles_a) > len(chap_starts):
+    #     chap_titles_a = chap_titles_a[:len(chap_starts)]
 
-    chap_titles_a_merged = "".join(chap_titles_a)
-    num_count = 0
-    total_length = len(chap_titles_a_merged)
-    for char in chap_titles_a_merged:
-        if char.isdecimal():
-            num_count += 1
-    num_portion = (num_count+0.0)/total_length
-    if num_portion > .6:  # arbitrary cutoff
-        print("Using alternate source for chapter titles")
-        chap_titles_b = find_chap_titles(lines, chap_starts)  # called with chap_starts rather than toc_lines
+    chap_title_options = [chap_titles_a, chap_titles_b]
+    option_lengths = find_total_lengths(chap_title_options)
+    print("chap_title_options: " + str(chap_title_options))
+    num_portions = find_num_portion(chap_title_options)
+    print("num_portions: " + str(num_portions))
+    chosen_option = -1
+    for i in range(len(chap_title_options)):
+        if num_portions[i] > .4:
+            pass
+        elif chosen_option == -1 or option_lengths[i] > option_lengths[chosen_option]:
+            chosen_option = i
+    if chosen_option == -1 or option_lengths[chosen_option] == 0:  # if neither is chosen, try 1,2 lines before each
+        alt_chap_starts = [[], [], [], []]
+        for chap_start in chap_starts:
+            alt_chap_starts[0].append(chap_start - 1)
+            alt_chap_starts[1].append(chap_start - 2)
+        for toc_line in toc_lines:
+            alt_chap_starts[2].append(toc_line - 1)
+            alt_chap_starts[3].append(toc_line - 2)
 
-        chap_titles = chap_titles_b
+        chap_title_options = []
+        for alt_starts in alt_chap_starts:
+            chap_title_options.append(find_chap_titles(lines, alt_starts))
+        print("chap_title_options: " + str(chap_title_options))
+        option_lengths = find_total_lengths(chap_title_options)
+        print("option_lengths: " + str(option_lengths))
+        max_length = -1
+        max_length_position = -1
+        for i in range(len(option_lengths)):
+            cur_length = option_lengths[i]
+            if cur_length > max_length:
+                max_length = cur_length
+                max_length_position = i
+        if max_length > 10 and max_length_position != -1:
+            chap_titles = chap_title_options[max_length_position]
+        else:
+            raise Exception("Unable to Parse Titles")
     else:
-        chap_titles = chap_titles_a
+        chap_titles = chap_title_options[chosen_option]
 
-    trim_chap_titles(chap_titles)
+    if find_total_lengths([chap_titles])[0] < 10 and len(chap_titles) < 4 or len(chap_titles) < 2:
+        raise Exception("too few chapters found")
 
+    # check the portion of chap_title strings that are empty, fail parse if more than 15%
+    empty_portion = get_empty_portion(chap_titles)
+    if empty_portion >= 0.15:
+        raise Exception("too many empty chap_titles")
+
+    chap_titles = get_trimmed_chap_titles(chap_titles)
     if len(chap_ids) < len(chap_starts):
         raise Exception("too many chap_starts")
 
@@ -104,7 +170,7 @@ def parse_html_file(html_file):
     undesirable_samples = ['href="#contents', '<img', 'href="images/']
     chap_portions = []
     for i in range(1, len(chap_starts)):
-        chap_portions.append(lines[chap_starts[i-1]:chap_starts[i]])
+        chap_portions.append(lines[chap_starts[i - 1]:chap_starts[i]])
 
     for chapter in chap_portions:
         for undesirable_sample in undesirable_samples:
@@ -116,10 +182,10 @@ def parse_html_file(html_file):
         line = find_line_of_value(end_of_chapter, '<hr')
         if line != -1:
             for i in range(line, 9):
-                chapter[-1*i] = ''
-    
+                chapter[-1 * i] = ''
+
     # recombine into a single string
-    if len(chap_portions)+1 != len(chap_starts):  # valid values needed to update chap_starts
+    if len(chap_portions) + 1 != len(chap_starts):  # valid values needed to update chap_starts
         raise Exception("chap_starts & chap_portions do not have valid values, len(chap_starts):"
                         + str(len(chap_starts)) + ", len(chap_portions)" + str(len(chap_portions)))
     string_portions = []
@@ -128,7 +194,7 @@ def parse_html_file(html_file):
         line_count = len(chap_portions[index])
         s = '\n'.join(chap_portions[index])
         string_portions.append(s)
-        chap_starts[index+1] = chap_starts[index] + line_count
+        chap_starts[index + 1] = chap_starts[index] + line_count
     full_text = '\n'.join(string_portions)
 
     section_indices = get_section_indices(chap_starts)
@@ -139,11 +205,36 @@ def parse_html_file(html_file):
                  "chapter_divisions": chap_starts,
                  "section_indices": section_indices,
                  "meta_tags": meta_tags,
-                 "pg_id": pg_id}
+                 "pg_id": pg_id,
+                 "is_public_domain": is_public_domain}
     return book_dict
 
 
-def trim_chap_titles(chap_titles):
+def find_total_lengths(list_of_lists):
+    list_of_lengths = []
+    for i in range(len(list_of_lists)):
+        merged_list = "".join(list_of_lists[i])
+        total_length = len(merged_list)
+        list_of_lengths.append(total_length)
+    return list_of_lengths
+
+
+def find_num_portion(chap_title_options):
+    all_num_portions = []
+    for i in range(len(chap_title_options)):
+        chap_titles_merged = "".join(chap_title_options[i])
+        num_count = 0
+        total_length = len(chap_titles_merged)
+        for char in chap_titles_merged:  # checks for unusual proportions to judge which set of titles should be used
+            if char.isdecimal() or (char.upper() == 'P'):
+                num_count += 1
+        # added to denominator to avoid /0 error if total_len is 0
+        num_portion = (num_count + 0.0) / (total_length + 0.00001)
+        all_num_portions.append(num_portion)
+    return all_num_portions
+
+
+def get_trimmed_chap_titles(chap_titles):
     # Trim undesired parts from chap_titles
     UNWANTED_IN_TITLE = "Chapter: "
     if chap_titles[0].startswith(UNWANTED_IN_TITLE) and not chap_titles[1].startswith(UNWANTED_IN_TITLE):
@@ -151,6 +242,7 @@ def trim_chap_titles(chap_titles):
     for i in range(len(chap_titles)):
         if len(chap_titles[i]) != 0 and chap_titles[i][-1] == ",":
             chap_titles[i] = chap_titles[i][:-1]
+    return chap_titles
 
 
 def get_meta_tags(sample, meta_portion):
@@ -191,7 +283,7 @@ def revise_toc_lines(toc_lines):
             old_avg_diff = old_sum / (i - 1)
             old_sum = new_sum
             # cutoff toc_lines at first big jump in lines relative to previous jumps
-            if abs(old_avg_diff - new_diff) > old_avg_diff*1.5:
+            if abs(old_avg_diff - new_diff) > old_avg_diff * 1.5:
                 print("old_diff: " + str(old_avg_diff) + " new_diff: " + str(new_diff))
                 return toc_lines[:i]
     return toc_lines
@@ -254,7 +346,7 @@ def find_chap_titles(lines, result):
                     break
             string_to_append = cur_line[start_index:end_index]
             if string_to_append == "":
-                end_index = cur_line.find("</", end_index+1)
+                end_index = cur_line.find("</", end_index + 1)
             else:
                 end_index = -1
         chapter_titles.append("" + string_to_append)

@@ -15,6 +15,12 @@
             <h1 class="text-primary-emphasis display-5 mx-2 mx-md-3 text-center w-100">{{ Book.title }}</h1>
             <hr class="w-75 mx-1">
         </div>
+        {% if Book.verified_public_domain %}
+            <p class="text-primary fs-6 mx-2 mx-md-3 p-0 my-1 mt-3 text-center">
+                {% bs_icon 'check-circle-fill' size='1.3em' color='#ff5f00' extra_classes="bi-valign-bottom" %}
+                Verified Public Domain
+            </p>
+        {% endif %}
 
         <div class="justify-content-center row mx-2 mx-md-3 mx-lg-4 my-3 my-md-4 my-lg-4 col-lg-7 col-xl-6 rounded-3 bg-light
         border border-2 border-white p-1 shadow-md">
