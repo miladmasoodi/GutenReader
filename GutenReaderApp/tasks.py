@@ -8,7 +8,7 @@ from django.core.management import call_command
 from django_q.tasks import async_task
 
 from GutenReaderApp.models import handle_create_book_from_path, Book, SubjectTag
-from GutenReaderApp.views import get_tags_order_by, get_books_order_by, get_home_books, NUM_TOP_BOOKS_HOME
+from GutenReaderApp.views import get_home_books, cache_book_models, cache_subject_tag_models
 
 successful_paths = []
 base_url = 'http://aleph.gutenberg.org/cache/epub/'
@@ -61,17 +61,18 @@ def download_files(start, distance):
 
 
 def rebuild_cache():  # deletes existing caches then calls methods that will generate them
-    print("Deleting Existing Caches")
-    cache.delete('book_models')
-    cache.delete('top_book_models')
-    cache.delete('subject_tag_data')
-    cache.delete('top_subject_tag_data')
-    cache.delete('home_page_books')
+    # print("Deleting Existing Caches")
+    # cache.delete('book_models')
+    # cache.delete('top_book_models')
+    # cache.delete('subject_tag_data')
+    # cache.delete('top_subject_tag_data')
+
     print("Starting Caching:")
     # start caching
     start_time = time.time()
-    get_books_order_by()
-    get_tags_order_by()
+    cache_book_models()
+    cache_subject_tag_models()
+    cache.delete('home_page_books')
     get_home_books()
     end_time = time.time()
     time_taken = end_time - start_time

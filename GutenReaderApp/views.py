@@ -45,10 +45,26 @@ def get_books_order_by(order_by='-view_count', max_items=MAX_PAGE_ITEMS):
             cache.set('top_book_models', book_models[:max_items], None)
     if book_models is None:
         # If not in cache, query the database and cache the result
-        book_models = list(Book.objects.order_by(order_by).all())
-        cache.set('book_models', book_models, None)
-        cache.set('top_book_models', book_models[:MAX_PAGE_ITEMS], None)
+        book_models = cache_book_models(max_items)
     book_models = book_models[:max_items]
+    return book_models
+
+
+def cache_book_models(max_items=MAX_PAGE_ITEMS):
+    book_models = []
+    book_tuple_list = []
+    last_pk = Book.objects.last().pk
+    for pk in range(1, last_pk + 1):
+        try:
+            book = Book.objects.get(pk=pk)
+        except Exception as e:
+            continue
+        book_tuple_list.append((book.pk, book.view_count))
+    book_tuple_list = sorted(book_tuple_list, key=lambda x: -1 * x[1])
+    for book_tuple in book_tuple_list[:max_items]:
+        book_models.append(Book.objects.get(pk=book_tuple[0]))
+    cache.set('book_models', book_models, None)
+    cache.set('top_book_models', book_models[:MAX_PAGE_ITEMS], None)
     return book_models
 
 
@@ -63,18 +79,34 @@ def get_tags_order_by(order_by='-num_books', max_items=MAX_PAGE_ITEMS):
             cache.set('top_subject_tag_data', subject_tag_data[:max_items], None)
     if subject_tag_data is None:
         # If not in cache, query the database and cache the result
-        tags = list(SubjectTag.objects.order_by(order_by).all())
-        content_and_book_count = []
-        for tag in tags:
-            if tag.num_books == 1:
-                content_and_book_count.append((tag.books.all()[0], tag.content, tag.num_books))
-            else:
-                content_and_book_count.append((tag, tag.content, tag.num_books))
-        subject_tag_data = content_and_book_count
-        cache.set('subject_tag_data', subject_tag_data, None)
-        cache.set('top_subject_tag_data', subject_tag_data[:MAX_PAGE_ITEMS], None)
+        subject_tag_data = cache_subject_tag_models(max_items)
     subject_tag_data = subject_tag_data[:max_items]
 
+    return subject_tag_data
+
+
+def cache_subject_tag_models(max_items=MAX_PAGE_ITEMS):
+    tag_models = []
+    tag_tuple_list = []
+    last_pk = SubjectTag.objects.last().pk
+    for pk in range(1, last_pk + 1):
+        try:
+            tag = SubjectTag.objects.get(pk=pk)
+        except Exception as e:
+            continue
+        tag_tuple_list.append((tag.pk, tag.num_books))
+    tag_tuple_list = sorted(tag_tuple_list, key=lambda x: -1 * x[1])
+    for tag_tuple in tag_tuple_list[:max_items]:
+        tag_models.append(SubjectTag.objects.get(pk=tag_tuple[0]))
+    content_and_book_count = []
+    for tag in tag_models:
+        if tag.num_books == 1:
+            content_and_book_count.append((tag.books.all()[0], tag.content, tag.num_books))
+        else:
+            content_and_book_count.append((tag, tag.content, tag.num_books))
+    subject_tag_data = content_and_book_count
+    cache.set('subject_tag_data', subject_tag_data, None)
+    cache.set('top_subject_tag_data', subject_tag_data[:MAX_PAGE_ITEMS], None)
     return subject_tag_data
 
 
